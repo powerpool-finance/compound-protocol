@@ -7,6 +7,7 @@ import "./Exponential.sol";
 import "./EIP20Interface.sol";
 import "./EIP20NonStandardInterface.sol";
 import "./InterestRateModel.sol";
+import "./CTokenRestrictionsInterface.sol";
 
 /**
  * @title Compound's CToken Contract
@@ -187,7 +188,7 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
      * @param owner The address of the account to query
      * @return The amount of underlying owned by `owner`
      */
-    function balanceOfUnderlying(address owner) external returns (uint) {
+    function balanceOfUnderlying(address owner) public returns (uint) {
         Exp memory exchangeRate = Exp({mantissa: exchangeRateCurrent()});
         (MathError mErr, uint balance) = mulScalarTruncate(exchangeRate, accountTokens[owner]);
         require(mErr == MathError.NO_ERROR, "balance could not be calculated");
@@ -495,6 +496,15 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
      * @return (uint, uint) An error code (0=success, otherwise a failure, see ErrorReporter.sol), and the actual mint amount.
      */
     function mintFresh(address minter, uint mintAmount) internal returns (uint, uint) {
+
+        if(address(tokenRestrictions) != address(0)) {
+            uint underlyingBalance = balanceOfUnderlying(minter);
+            (uint maxMint,) = tokenRestrictions.getUserRestrictionsAndValidateWhitelist(minter, address(this));
+            if (mintAmount + underlyingBalance > maxMint) {
+                return (failOpaque(Error.COMPTROLLER_REJECTION, FailureInfo.MINT_COMPTROLLER_REJECTION, maxMint), 0);
+            }
+        }
+
         /* Fail if mint not allowed */
         uint allowed = comptroller.mintAllowed(address(this), minter, mintAmount);
         if (allowed != 0) {
@@ -770,6 +780,13 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
         (vars.mathErr, vars.totalBorrowsNew) = addUInt(totalBorrows, borrowAmount);
         if (vars.mathErr != MathError.NO_ERROR) {
             return failOpaque(Error.MATH_ERROR, FailureInfo.BORROW_NEW_TOTAL_BALANCE_CALCULATION_FAILED, uint(vars.mathErr));
+        }
+
+        if(address(tokenRestrictions) != address(0)) {
+            (, uint256 maxBorrow) = tokenRestrictions.getUserRestrictionsAndValidateWhitelist(address(borrower), address(this));
+            if (vars.totalBorrowsNew > maxBorrow) {
+                return failOpaque(Error.MATH_ERROR, FailureInfo.BORROW_NEW_TOTAL_BALANCE_CALCULATION_FAILED, maxBorrow);
+            }
         }
 
         /////////////////////////
@@ -1337,6 +1354,24 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
         emit ReservesReduced(admin, reduceAmount, totalReservesNew);
 
         return uint(Error.NO_ERROR);
+    }
+
+    /**
+     * @notice accrues interest and updates the interest rate model using _setInterestRateModelFresh
+     * @dev Admin function to accrue interest and update the interest rate model
+     * @param newTokenRestrictions the new token restrictions
+     * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
+     */
+    function _setTokenRestrictions(CTokenRestrictionsInterface newTokenRestrictions) public returns (uint) {
+        require(msg.sender == admin, "Msg sender are not admin");
+
+        CTokenRestrictionsInterface oldInterestRateModel = tokenRestrictions;
+
+        tokenRestrictions = newTokenRestrictions;
+
+        emit NewTokenRestrictions(oldInterestRateModel, newTokenRestrictions);
+
+        return 0;
     }
 
     /**

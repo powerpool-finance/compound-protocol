@@ -2,6 +2,7 @@ pragma solidity ^0.5.16;
 
 import "./ComptrollerInterface.sol";
 import "./InterestRateModel.sol";
+import "./CTokenRestrictionsInterface.sol";
 
 contract CTokenStorage {
     /**
@@ -114,6 +115,8 @@ contract CTokenStorage {
      * @notice Mapping of account addresses to outstanding borrow balances
      */
     mapping(address => BorrowSnapshot) internal accountBorrows;
+
+    CTokenRestrictionsInterface public tokenRestrictions;
 }
 
 contract CTokenInterface is CTokenStorage {
@@ -207,6 +210,11 @@ contract CTokenInterface is CTokenStorage {
      * @notice Failure event
      */
     event Failure(uint error, uint info, uint detail);
+
+    /**
+     * @notice Event emitted when tokenRestrictions is changed
+     */
+    event NewTokenRestrictions(CTokenRestrictionsInterface oldTokenRestrictions, CTokenRestrictionsInterface newTokenRestrictions);
 
 
     /*** User Interface ***/
