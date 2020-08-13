@@ -43,24 +43,34 @@ contract CTokenRestrictions is CTokenRestrictionsInterface {
 
   /*** Admin Functions ***/
 
-  function addUserToWhiteList(address _user, address[] calldata _tokenList, uint256[] calldata _maxMintList, uint256[] calldata _maxBorrowList) external onlyAdmin {
-    usersWhiteList.add(_user);
-    
-    emit AddWhitelistedUser(_user, msg.sender);
+  function addUserToWhiteList(address[] calldata _userList, address[] calldata _tokenList, uint256[] calldata _maxMintList, uint256[] calldata _maxBorrowList) external onlyAdmin {
+    uint256 len = _userList.length;
 
-    _setUserRestrictions(_user, _tokenList, _maxMintList, _maxBorrowList);
+    for(uint256 i = 0; i < len; i++) {
+      usersWhiteList.add(_userList[i]);
+      emit AddWhitelistedUser(_userList[i], msg.sender);
+      _setUserRestrictions(_userList[i], _tokenList, _maxMintList, _maxBorrowList);
+    }
   }
 
-  function updateUserRestrictions(address _user, address[] calldata _tokenList, uint256[] calldata _maxMintList, uint256[] calldata _maxBorrowList) external onlyAdmin {
-    _setUserRestrictions(_user, _tokenList, _maxMintList, _maxBorrowList);
+  function updateUserRestrictions(address[] calldata _userList, address[] calldata _tokenList, uint256[] calldata _maxMintList, uint256[] calldata _maxBorrowList) external onlyAdmin {
+    uint256 len = _userList.length;
 
-    emit UpdateWhitelistedUser(_user, msg.sender);
+    for(uint256 i = 0; i < len; i++) {
+      _setUserRestrictions(_userList[i], _tokenList, _maxMintList, _maxBorrowList);
+
+      emit UpdateWhitelistedUser(_userList[i], msg.sender);
+    }
   }
 
-  function removeUserFromWhiteList(address _user) external onlyAdmin {
-    usersWhiteList.remove(_user);
-    
-    emit RemoveWhitelistedUser(_user, msg.sender);
+  function removeUserFromWhiteList(address[] calldata _userList) external onlyAdmin {
+    uint256 len = _userList.length;
+
+    for(uint256 i = 0; i < len; i++) {
+      usersWhiteList.remove(_userList[i]);
+
+      emit RemoveWhitelistedUser(_userList[i], msg.sender);
+    }
   }
 
   function setDefaultRestrictions(address[] calldata _tokenList, uint256[] calldata _maxMintList, uint256[] calldata _maxBorrowList) external onlyAdmin {
@@ -74,7 +84,7 @@ contract CTokenRestrictions is CTokenRestrictionsInterface {
   }
 
   function validateWhitelistedUser(address _user) public view {
-    require(usersWhiteList.contains(_user), "CTokenRestrictions: Recipient is not in whitelist");
+    require(usersWhiteList.contains(_user), "NOT_IN_WHITELIST_ERROR");
   }
 
   function getUserRestrictionsAndValidateWhitelist(address _user, address _token) external view returns(uint256 maxMint, uint256 maxBorrow) {

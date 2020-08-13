@@ -498,11 +498,10 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
     function mintFresh(address minter, uint mintAmount) internal returns (uint, uint) {
 
         if(address(tokenRestrictions) != address(0)) {
-            uint underlyingBalance = balanceOfUnderlying(minter);
+            Exp memory exchangeRate = Exp({mantissa: exchangeRateStored()});
+            (, uint underlyingBalance) = mulScalarTruncate(exchangeRate, accountTokens[minter]);
             (uint maxMint,) = tokenRestrictions.getUserRestrictionsAndValidateWhitelist(minter, address(this));
-            if (mintAmount + underlyingBalance > maxMint) {
-                return (failOpaque(Error.COMPTROLLER_REJECTION, FailureInfo.MINT_COMPTROLLER_REJECTION, maxMint), 0);
-            }
+            require(mintAmount + underlyingBalance <= maxMint, "MINT_AMOUNT_EXCEED_RESTRICTIONS");
         }
 
         /* Fail if mint not allowed */
@@ -784,9 +783,7 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
 
         if(address(tokenRestrictions) != address(0)) {
             (, uint256 maxBorrow) = tokenRestrictions.getUserRestrictionsAndValidateWhitelist(address(borrower), address(this));
-            if (vars.totalBorrowsNew > maxBorrow) {
-                return failOpaque(Error.MATH_ERROR, FailureInfo.BORROW_NEW_TOTAL_BALANCE_CALCULATION_FAILED, maxBorrow);
-            }
+            require(vars.totalBorrowsNew <= maxBorrow, "BORROW_AMOUNT_EXCEED_RESTRICTIONS");
         }
 
         /////////////////////////
