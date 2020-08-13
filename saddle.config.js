@@ -1,8 +1,10 @@
 
 module.exports = {
   // solc: "solc",                                          // Solc command to run
-  solc_args: [                                              // Extra solc args
-    '--allow-paths','contracts,tests/Contracts',
+  solc_args: [
+    'powerpool-protocol=./node_modules/powerpool-protocol', // Extra solc args
+    '@openzeppelin=./node_modules/@openzeppelin',
+    '--allow-paths','contracts,tests/Contracts, node_modules/@openzeppelin/contracts/**/*.sol',
     '--evm-version', 'istanbul'
   ],
   solc_shell_args: {                                        // Args passed to `exec`, see:

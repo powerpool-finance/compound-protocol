@@ -12,7 +12,9 @@
     "repl": "./scenario/script/repl",
     "profile": "yarn test tests/gasProfiler.js",
     "test": "./script/test",
-    "test:prepare": "NO_RUN=true ./script/test"
+    "test:prepare": "NO_RUN=true ./script/test",
+    "saddle-test-restrictions": "npx saddle test tests/Restrictions/*",
+    "saddle-test": "npx saddle test"
   },
   "repository": "git@github.com:compound-finance/compound-protocol.git",
   "author": "Compound Finance",
@@ -22,7 +24,8 @@
     "jest-diff": "^24.9.0",
     "jest-junit": "^6.4.0",
     "solium": "^1.2.5",
-    "solparse": "^2.2.8"
+    "solparse": "^2.2.8",
+    "@openzeppelin/contracts": "2.5.0"
   },
   "dependencies": {
     "eth-saddle": "^0.1.17"
