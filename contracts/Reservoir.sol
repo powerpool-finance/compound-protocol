@@ -11,7 +11,7 @@ contract Reservoir {
   event NewPendingAdmin(address oldPendingAdmin, address newPendingAdmin);
   event NewAdmin(address oldAdmin, address newAdmin);
 
-  event NewDripRate(uint oldDripRate, address newDripRate);
+  event NewDripRate(uint oldDripRate, uint newDripRate);
 
   address public admin;
   address public pendingAdmin;
