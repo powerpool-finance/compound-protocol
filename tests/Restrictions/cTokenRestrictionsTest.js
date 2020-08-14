@@ -24,6 +24,12 @@ async function preMint(cToken, minter, mintAmount, mintTokens, exchangeRate) {
   await send(cToken, 'harnessSetExchangeRate', [etherMantissa(exchangeRate)]);
 }
 
+async function borrow(cToken, borrower, borrowAmount, opts = {}) {
+  // make sure to have a block delta so we accrue interest
+  await send(cToken, 'harnessFastForward', [1]);
+  return send(cToken, 'borrow', [borrowAmount], {from: borrower});
+}
+
 async function makeCTokenRestrictions(cTokens = [], maxMintList = [], maxBorrowList = []) {
   let cTokenRestrictions = await deploy('CTokenRestrictions', []);
   await send(cTokenRestrictions, 'setDefaultRestrictions', [cTokens, maxMintList, maxBorrowList]);
@@ -55,7 +61,7 @@ describe('CTokenRestrictions', function () {
 
       await send(cTokenRestrictions, 'addUserToWhiteList', [[minter], [], [], []]);
 
-      expect(await quickMint(cToken, minter, mintAmount)).toSucceed();
+      await expect(await quickMint(cToken, minter, mintAmount)).toSucceed();
       expect(await balanceOf(cToken, minter)).toEqualNumber(mintTokens);
 
       await send(cTokenRestrictions, 'removeUserFromWhiteList', [[minter]]);
@@ -76,7 +82,7 @@ describe('CTokenRestrictions', function () {
     });
 
     it("returns success from mintFresh and mints the correct number of tokens", async () => {
-      expect(await quickMint(cToken, minter, mintAmount)).toSucceed();
+      await expect(await quickMint(cToken, minter, mintAmount)).toSucceed();
       expect(mintTokens).not.toEqualNumber(0);
       expect(await balanceOf(cToken, minter)).toEqualNumber(mintTokens);
     });
@@ -87,11 +93,39 @@ describe('CTokenRestrictions', function () {
       expect(await balanceOf(cToken, minter)).toEqualNumber(0);
 
       await preApprove(cToken, minter, mintAmount);
-      expect(await quickMint(cToken, minter, mintAmount)).toSucceed();
+      await expect(await quickMint(cToken, minter, mintAmount)).toSucceed();
       expect(await balanceOf(cToken, minter)).toEqualNumber(mintTokens);
 
       await preApprove(cToken, minter, mintAmount);
       await expect(quickMint(cToken, minter, mintAmount)).rejects.toRevert('revert MINT_AMOUNT_EXCEED_RESTRICTIONS');
+    });
+  });
+
+  describe('borrow', () => {
+    beforeEach(async () => {
+      cToken = await makeCToken({comptrollerOpts: {kind: 'bool'}, exchangeRate});
+      cTokenRestrictions = await makeCTokenRestrictions([cToken._address], [maxMint], [maxBorrow]);
+      await send(cToken, '_setTokenRestrictions', [cTokenRestrictions._address]);
+      await preMint(cToken, minter, mintAmount, mintTokens, exchangeRate);
+      await send(cTokenRestrictions, 'addUserToWhiteList', [[minter], [], [], []]);
+
+      await send(cToken.comptroller, 'setBorrowAllowed', [true]);
+      await send(cToken.comptroller, 'setBorrowVerify', [true]);
+      await send(cToken.comptroller, 'enterMarkets', [[cTokenRestrictions._address]]);
+    });
+    it("revert on exceed max borrow amount", async () => {
+      await preApprove(cToken, minter, mintAmount);
+      expect(await quickMint(cToken, minter, mintAmount)).toSucceed();
+      expect(await balanceOf(cToken, minter)).toEqualNumber(mintTokens);
+
+      await expect(borrow(cToken, minter, mintAmount / 2 + 1)).rejects.toRevert('revert BORROW_AMOUNT_EXCEED_RESTRICTIONS');
+      await expect(await borrow(cToken, minter, mintAmount / 2)).toSucceed();
+      await expect(borrow(cToken, minter, mintAmount / 4)).rejects.toRevert('revert BORROW_AMOUNT_EXCEED_RESTRICTIONS');
+
+      await preApprove(cToken, minter, mintAmount);
+      await send(cToken, 'repayBorrow', [mintAmount / 2], {from: minter});
+
+      expect(await borrow(cToken, minter, mintAmount / 4)).toSucceed();
     });
   });
 });
