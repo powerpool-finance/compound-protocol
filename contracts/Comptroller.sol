@@ -1309,8 +1309,8 @@ contract Comptroller is ComptrollerV3Storage, ComptrollerInterface, ComptrollerE
     }
 
     /**
-     * @notice Set the amount of COMP distributed per block
-     * @param compRate_ The amount of COMP wei per block to distribute
+     * @notice Set the COMP address
+     * @param compAddress_ COMP address
      */
     function _setCompAddress(address compAddress_) public {
         require(adminOrInitializing(), "only admin can change comp address");
