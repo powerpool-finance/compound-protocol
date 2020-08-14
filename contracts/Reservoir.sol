@@ -47,6 +47,11 @@ contract Reservoir {
     admin = msg.sender;
   }
 
+  modifier onlyAdmin() {
+    require(msg.sender == admin, "Msg sender are not admin");
+    _;
+  }
+
   /**
     * @notice Drips the maximum amount of tokens to match the drip rate since inception
     * @dev Note: this will only drip up to the amount of tokens available.
