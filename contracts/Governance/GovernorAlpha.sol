@@ -1,7 +1,10 @@
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
-contract GovernorAlpha {
+import "./CompInterface.sol";
+import "./GovernorAlphaInterface.sol";
+
+contract GovernorAlpha is GovernorAlphaInterface {
     /// @notice The name of this contract
     string public constant name = "Compound Governor Alpha";
 
@@ -74,30 +77,6 @@ contract GovernorAlpha {
 
         /// @notice Receipts of ballots for the entire set of voters
         mapping (address => Receipt) receipts;
-    }
-
-    /// @notice Ballot receipt record for a voter
-    struct Receipt {
-        /// @notice Whether or not a vote has been cast
-        bool hasVoted;
-
-        /// @notice Whether or not the voter supports the proposal
-        bool support;
-
-        /// @notice The number of votes the voter had, which were cast
-        uint96 votes;
-    }
-
-    /// @notice Possible states that a proposal may be in
-    enum ProposalState {
-        Pending,
-        Active,
-        Canceled,
-        Defeated,
-        Succeeded,
-        Queued,
-        Expired,
-        Executed
     }
 
     /// @notice The official record of all proposals ever proposed
@@ -314,18 +293,4 @@ contract GovernorAlpha {
         assembly { chainId := chainid() }
         return chainId;
     }
-}
-
-interface TimelockInterface {
-    function delay() external view returns (uint);
-    function GRACE_PERIOD() external view returns (uint);
-    function acceptAdmin() external;
-    function queuedTransactions(bytes32 hash) external view returns (bool);
-    function queueTransaction(address target, uint value, string calldata signature, bytes calldata data, uint eta) external returns (bytes32);
-    function cancelTransaction(address target, uint value, string calldata signature, bytes calldata data, uint eta) external;
-    function executeTransaction(address target, uint value, string calldata signature, bytes calldata data, uint eta) external payable returns (bytes memory);
-}
-
-interface CompInterface {
-    function getPriorVotes(address account, uint blockNumber) external view returns (uint96);
 }
