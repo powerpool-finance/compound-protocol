@@ -53,6 +53,9 @@ contract Comptroller is ComptrollerV3Storage, ComptrollerInterface, ComptrollerE
     /// @notice Emitted when COMP rate is changed
     event NewCompRate(uint oldCompRate, uint newCompRate);
 
+    /// @notice Emitted when COMP rate is changed
+    event NewCompAddress(address oldCompAddress, address newCompAddress);
+
     /// @notice Emitted when a new COMP speed is calculated for a market
     event CompSpeedUpdated(CToken indexed cToken, uint newSpeed);
 
@@ -1306,6 +1309,20 @@ contract Comptroller is ComptrollerV3Storage, ComptrollerInterface, ComptrollerE
     }
 
     /**
+     * @notice Set the COMP address
+     * @param compAddress_ COMP address
+     */
+    function _setCompAddress(address compAddress_) public {
+        require(adminOrInitializing(), "only admin can change comp address");
+
+        address oldAddress = compAddress;
+        compAddress = compAddress_;
+        emit NewCompAddress(oldAddress, compAddress_);
+
+        refreshCompSpeedsInternal();
+    }
+
+    /**
      * @notice Add markets to compMarkets, allowing them to earn COMP in the flywheel
      * @param cTokens The addresses of the markets to add
      */
@@ -1376,6 +1393,6 @@ contract Comptroller is ComptrollerV3Storage, ComptrollerInterface, ComptrollerE
      * @return The address of COMP
      */
     function getCompAddress() public view returns (address) {
-        return 0xc00e94Cb662C3520282E6f5717214004A7f26888;
+        return compAddress;
     }
 }

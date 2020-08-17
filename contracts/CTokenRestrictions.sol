@@ -151,7 +151,10 @@ contract CTokenRestrictions is CTokenRestrictionsInterface {
     * @dev Admin function for pending admin to accept role and update admin
     * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
     */
-  function _acceptAdmin() external onlyAdmin returns (uint) {
+  function _acceptAdmin() external returns (uint) {
+
+    require(pendingAdmin == msg.sender, "Msg sender are not pendingAdmin");
+
     // Save current values for inclusion in log
     address oldAdmin = admin;
     address oldPendingAdmin = pendingAdmin;

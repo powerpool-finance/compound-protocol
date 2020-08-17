@@ -776,14 +776,14 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
             return failOpaque(Error.MATH_ERROR, FailureInfo.BORROW_NEW_ACCOUNT_BORROW_BALANCE_CALCULATION_FAILED, uint(vars.mathErr));
         }
 
+        if(address(tokenRestrictions) != address(0)) {
+            (, uint256 maxBorrow) = tokenRestrictions.getUserRestrictionsAndValidateWhitelist(address(borrower), address(this));
+            require(vars.accountBorrowsNew <= maxBorrow, "BORROW_AMOUNT_EXCEED_RESTRICTIONS");
+        }
+
         (vars.mathErr, vars.totalBorrowsNew) = addUInt(totalBorrows, borrowAmount);
         if (vars.mathErr != MathError.NO_ERROR) {
             return failOpaque(Error.MATH_ERROR, FailureInfo.BORROW_NEW_TOTAL_BALANCE_CALCULATION_FAILED, uint(vars.mathErr));
-        }
-
-        if(address(tokenRestrictions) != address(0)) {
-            (, uint256 maxBorrow) = tokenRestrictions.getUserRestrictionsAndValidateWhitelist(address(borrower), address(this));
-            require(vars.totalBorrowsNew <= maxBorrow, "BORROW_AMOUNT_EXCEED_RESTRICTIONS");
         }
 
         /////////////////////////

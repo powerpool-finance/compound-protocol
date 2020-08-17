@@ -8,6 +8,14 @@ pragma solidity ^0.5.16;
  */
 contract Reservoir {
 
+  event NewPendingAdmin(address oldPendingAdmin, address newPendingAdmin);
+  event NewAdmin(address oldAdmin, address newAdmin);
+
+  event NewDripRate(uint oldDripRate, uint newDripRate);
+
+  address public admin;
+  address public pendingAdmin;
+
   /// @notice The block number when the Reservoir started (immutable)
   uint public dripStart;
 
@@ -35,6 +43,13 @@ contract Reservoir {
     token = token_;
     target = target_;
     dripped = 0;
+
+    admin = msg.sender;
+  }
+
+  modifier onlyAdmin() {
+    require(msg.sender == admin, "Msg sender are not admin");
+    _;
   }
 
   /**
@@ -63,6 +78,57 @@ contract Reservoir {
     token_.transfer(target_, toDrip_);
 
     return toDrip_;
+  }
+
+  /*** Admin Functions ***/
+
+  function setDripRate(uint _dripRate) external onlyAdmin {
+    uint oldDripRate = dripRate;
+
+    dripRate = _dripRate;
+
+    emit NewDripRate(oldDripRate, dripRate);
+  }
+
+  /**
+    * @notice Begins transfer of admin rights. The newPendingAdmin must call `_acceptAdmin` to finalize the transfer.
+    * @dev Admin function to begin change of admin. The newPendingAdmin must call `_acceptAdmin` to finalize the transfer.
+    * @param newPendingAdmin New pending admin.
+    * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
+    */
+  function _setPendingAdmin(address payable newPendingAdmin) external onlyAdmin returns (uint) {
+    // Save current value, if any, for inclusion in log
+    address oldPendingAdmin = pendingAdmin;
+
+    // Store pendingAdmin with value newPendingAdmin
+    pendingAdmin = newPendingAdmin;
+
+    emit NewPendingAdmin(oldPendingAdmin, newPendingAdmin);
+    return 0;
+  }
+
+  /**
+    * @notice Accepts transfer of admin rights. msg.sender must be pendingAdmin
+    * @dev Admin function for pending admin to accept role and update admin
+    * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
+    */
+  function _acceptAdmin() external returns (uint) {
+
+    require(pendingAdmin == msg.sender, "Msg sender are not pendingAdmin");
+
+    // Save current values for inclusion in log
+    address oldAdmin = admin;
+    address oldPendingAdmin = pendingAdmin;
+
+    // Store admin with value pendingAdmin
+    admin = pendingAdmin;
+
+    // Clear the pending value
+    pendingAdmin = address(0);
+
+    emit NewAdmin(oldAdmin, admin);
+    emit NewPendingAdmin(oldPendingAdmin, pendingAdmin);
+    return 0;
   }
 
   /* Internal helper functions for safe math */
