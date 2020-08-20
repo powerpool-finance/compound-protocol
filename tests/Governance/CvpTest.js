@@ -33,7 +33,7 @@ describe('Cvp', () => {
 
   describe('balanceOf', () => {
     it('grants to initial account', async () => {
-      expect(await call(cvp, 'balanceOf', [root])).toEqual("104236363000000000000000000");
+      expect(await call(cvp, 'balanceOf', [root])).toEqual("100000000000000000000000000");
     });
   });
 
@@ -140,8 +140,8 @@ describe('Cvp', () => {
       await mineBlock();
       await mineBlock();
 
-      expect(await call(cvp, 'getPriorVotes', [a1, t1.blockNumber])).toEqual('104236363000000000000000000');
-      expect(await call(cvp, 'getPriorVotes', [a1, t1.blockNumber + 1])).toEqual('104236363000000000000000000');
+      expect(await call(cvp, 'getPriorVotes', [a1, t1.blockNumber])).toEqual('100000000000000000000000000');
+      expect(await call(cvp, 'getPriorVotes', [a1, t1.blockNumber + 1])).toEqual('100000000000000000000000000');
     });
 
     it('returns zero if < first checkpoint block', async () => {
@@ -151,7 +151,7 @@ describe('Cvp', () => {
       await mineBlock();
 
       expect(await call(cvp, 'getPriorVotes', [a1, t1.blockNumber - 1])).toEqual('0');
-      expect(await call(cvp, 'getPriorVotes', [a1, t1.blockNumber + 1])).toEqual('104236363000000000000000000');
+      expect(await call(cvp, 'getPriorVotes', [a1, t1.blockNumber + 1])).toEqual('100000000000000000000000000');
     });
 
     it('generally returns the voting balance at the appropriate checkpoint', async () => {
@@ -169,14 +169,14 @@ describe('Cvp', () => {
       await mineBlock();
 
       expect(await call(cvp, 'getPriorVotes', [a1, t1.blockNumber - 1])).toEqual('0');
-      expect(await call(cvp, 'getPriorVotes', [a1, t1.blockNumber])).toEqual('104236363000000000000000000');
-      expect(await call(cvp, 'getPriorVotes', [a1, t1.blockNumber + 1])).toEqual('104236363000000000000000000');
-      expect(await call(cvp, 'getPriorVotes', [a1, t2.blockNumber])).toEqual('104236362999999999999999990');
-      expect(await call(cvp, 'getPriorVotes', [a1, t2.blockNumber + 1])).toEqual('104236362999999999999999990');
-      expect(await call(cvp, 'getPriorVotes', [a1, t3.blockNumber])).toEqual('104236362999999999999999980');
-      expect(await call(cvp, 'getPriorVotes', [a1, t3.blockNumber + 1])).toEqual('104236362999999999999999980');
-      expect(await call(cvp, 'getPriorVotes', [a1, t4.blockNumber])).toEqual('104236363000000000000000000');
-      expect(await call(cvp, 'getPriorVotes', [a1, t4.blockNumber + 1])).toEqual('104236363000000000000000000');
+      expect(await call(cvp, 'getPriorVotes', [a1, t1.blockNumber])).toEqual('100000000000000000000000000');
+      expect(await call(cvp, 'getPriorVotes', [a1, t1.blockNumber + 1])).toEqual('100000000000000000000000000');
+      expect(await call(cvp, 'getPriorVotes', [a1, t2.blockNumber])).toEqual('99999999999999999999999990');
+      expect(await call(cvp, 'getPriorVotes', [a1, t2.blockNumber + 1])).toEqual('99999999999999999999999990');
+      expect(await call(cvp, 'getPriorVotes', [a1, t3.blockNumber])).toEqual('99999999999999999999999980');
+      expect(await call(cvp, 'getPriorVotes', [a1, t3.blockNumber + 1])).toEqual('99999999999999999999999980');
+      expect(await call(cvp, 'getPriorVotes', [a1, t4.blockNumber])).toEqual('100000000000000000000000000');
+      expect(await call(cvp, 'getPriorVotes', [a1, t4.blockNumber + 1])).toEqual('100000000000000000000000000');
     });
   });
 });

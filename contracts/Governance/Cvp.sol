@@ -12,7 +12,7 @@ contract Cvp {
     uint8 public constant decimals = 18;
 
     /// @notice Total number of tokens in circulation
-    uint public constant totalSupply = 104236363e18;
+    uint public constant totalSupply = 100000000e18;
 
     /// @notice Allowance amounts on behalf of others
     mapping (address => mapping (address => uint96)) internal allowances;
