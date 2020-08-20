@@ -1,6 +1,6 @@
 pragma solidity ^0.5.16;
 
-interface CompInterface {
+interface CvpInterface {
     /// @notice EIP-20 token name for this token
     function name() external view returns (string memory);
 
