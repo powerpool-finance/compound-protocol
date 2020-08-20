@@ -1,7 +1,7 @@
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
-import "./CompInterface.sol";
+import "./CvpInterface.sol";
 import "./GovernorAlphaInterface.sol";
 
 contract GovernorAlpha is GovernorAlphaInterface {
@@ -27,7 +27,7 @@ contract GovernorAlpha is GovernorAlphaInterface {
     TimelockInterface public timelock;
 
     /// @notice The address of the Compound governance token
-    CompInterface public comp;
+    CvpInterface public comp;
 
     /// @notice The address of the Governor Guardian
     address public guardian;
@@ -108,7 +108,7 @@ contract GovernorAlpha is GovernorAlphaInterface {
 
     constructor(address timelock_, address comp_, address guardian_) public {
         timelock = TimelockInterface(timelock_);
-        comp = CompInterface(comp_);
+        comp = CvpInterface(comp_);
         guardian = guardian_;
     }
 
