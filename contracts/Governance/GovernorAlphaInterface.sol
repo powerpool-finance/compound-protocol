@@ -1,7 +1,7 @@
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
-import "./CompInterface.sol";
+import "./CvpInterface.sol";
 
 contract GovernorAlphaInterface {
     /// @notice The name of this contract
@@ -26,7 +26,7 @@ contract GovernorAlphaInterface {
     function timelock() external view returns (TimelockInterface);
 
     /// @notice The address of the Compound governance token
-    function comp() external view returns (CompInterface);
+    function comp() external view returns (CvpInterface);
 
     /// @notice The address of the Governor Guardian
     function guardian() external view returns (address);
