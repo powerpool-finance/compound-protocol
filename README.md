@@ -13,8 +13,8 @@ Contracts
 We detail a few of the core contracts in the Powerpool protocol.
 
 <dl>
-  <dt>CToken, CErc20 and CEther</dt>
-  <dd>The Compound cTokens, which are self-contained borrowing and lending contracts. CToken contains the core logic and CErc20 and CEther add public interfaces for Erc20 tokens and ether, respectively. Each CToken is assigned an interest rate and risk model (see InterestRateModel and Comptroller sections), and allows accounts to *mint* (supply capital), *redeem* (withdraw capital), *borrow* and *repay a borrow*. Each CToken is an ERC-20 compliant token where balances represent ownership of the market.</dd>
+  <dt>ppToken, ppErc20 and ppEther</dt>
+  <dd>The PowerPool ppTokens, which are self-contained borrowing and lending contracts. ppToken contains the core logic and ppErc20 and ppEther add public interfaces for Erc20 tokens and ether, respectively. Each ppToken is assigned an interest rate and risk model (see InterestRateModel and Comptroller sections), and allows accounts to *mint* (supply capital), *redeem* (withdraw capital), *borrow* and *repay a borrow*. Each ppToken is an ERC-20 compliant token where balances represent ownership of the market.</dd>
 </dl>
 
 <dl>
@@ -23,7 +23,7 @@ We detail a few of the core contracts in the Powerpool protocol.
 </dl>
 
 <dl>
-  <dt>Comp</dt>
+  <dt>CVP</dt>
   <dd>The Concentrated Voting Power Token (CVP). Holders of this token have the ability to govern the protocol via the governor contract.</dd>
 </dl>
 
@@ -59,12 +59,12 @@ We detail a few of the core contracts in the Powerpool protocol.
 
 <dl>
   <dt>WhitePaperInterestRateModel</dt>
-  <dd>Initial interest rate model, as defined in the Whitepaper. This contract accepts a base rate and slope parameter in its constructor.</dd>
+  <dd>Initial interest rate model, as defined in the CCompound Whitepaper. This contract accepts a base rate and slope parameter in its constructor.</dd>
 </dl>
 
 Installation
 ------------
-To run compound, pull the repository from GitHub and install its dependencies. You will need [yarn](https://yarnpkg.com/lang/en/docs/install/) or [npm](https://docs.npmjs.com/cli/install) installed.
+To run Powerpool, pull the repository from GitHub and install its dependencies. You will need [yarn](https://yarnpkg.com/lang/en/docs/install/) or [npm](https://docs.npmjs.com/cli/install) installed.
 
     git clone https://github.com/powerpool-finance/powerpool-protocol.git
     cd powerpool-protocol
