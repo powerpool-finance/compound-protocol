@@ -4,7 +4,10 @@ Powerpool Protocol
 =================
 
 The PowerPool is a cross-chain lending protocol for the governance tokens, such as COMP, BAL, LEND, YFI, BZRX, AKRO, and many others. It is important to note that currently, PowerPool is targeted on the Defi market as the hottest one, but generally is not limited to it and can serve for pooling any other governance tokens in the Ethereum ecosystem.
-The PowerPool is based on a simple lending model, close to Compound’s one from the first sight. Every holder of governance tokens can supply liquidity into a contract and get the interest rate if there is a demand. Any person on the market can borrow governance tokens placing allowed digital assets as collateral. Currently, we plan to add ETH, wBTC, and DAI as collaterals for borrowing governance tokens. On the other hand, it has certain upgrades, and the particular set of oracles developed to form price feeds of highly-volatile assets such as governance tokens.
+The PowerPool is based on a simple lending model, close to Compound’s one from the first sight. Every holder of governance tokens can supply liquidity into a contract and get the interest rate if there is a demand. Any person on the market can borrow governance tokens placing allowed digital assets as collateral. 
+
+Currently, we plan to add ETH, wBTC, and DAI as collaterals for borrowing governance tokens. On the other hand, it has certain upgrades, and the particular set of oracles developed to form price feeds of highly-volatile assets such as governance tokens.
+
 Talking about the economic nature of governance tokens, they are unique assets in the context of lending/borrowing mechanics. The utility of governance tokens is not constant in time (comparing, for example, with payment tokens such as stablecoins). Talking strictly, it appears only during voting. Our vision is to introduce a novel type of lending logic, which is not available by default in Compound or any other lending protocols but can be very suitable for governance tokens. 
 
 Contracts
