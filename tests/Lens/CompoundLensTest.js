@@ -137,7 +137,7 @@ describe('CompoundLens', () => {
       );
     });
 
-    it('is correct for cETH', async () => {
+    it('is correct for ppETH', async () => {
       let cEth = await makeCToken({kind: 'cether'});
       let ethBalance = await web3.eth.getBalance(acct);
       expect(
