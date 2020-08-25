@@ -69,6 +69,15 @@ describe('CTokenRestrictions', function () {
       await preApprove(cToken, minter, mintAmount);
       await expect(quickMint(cToken, minter, mintAmount)).rejects.toRevert('revert NOT_IN_WHITELIST_ERROR');
       expect(await balanceOf(cToken, minter)).toEqualNumber(mintTokens);
+
+      await send(cTokenRestrictions, 'setWhitelistDisabled', [true]);
+
+      await expect(quickMint(cToken, minter, mintAmount)).rejects.toRevert('revert MINT_AMOUNT_EXCEED_RESTRICTIONS');
+
+      await send(cTokenRestrictions, 'setDefaultRestrictions', [[cToken._address], [maxMint.mul(2)], [maxBorrow]]);
+
+      await quickMint(cToken, minter, mintAmount);
+      expect(await balanceOf(cToken, minter)).toEqualNumber(mintTokens.mul(2));
     });
   });
 
