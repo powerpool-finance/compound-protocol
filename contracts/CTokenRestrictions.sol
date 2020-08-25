@@ -7,12 +7,14 @@ import "./CTokenRestrictionsInterface.sol";
 contract CTokenRestrictions is CTokenRestrictionsInterface {
   using EnumerableSet for EnumerableSet.AddressSet;
 
-  event AddWhitelistedUser(address indexed user, address indexed manager);
-  event UpdateWhitelistedUser(address indexed user, address indexed manager);
-  event RemoveWhitelistedUser(address indexed user, address indexed manager);
+  event AddWhitelistedUser(address indexed user, address indexed admin);
+  event UpdateWhitelistedUser(address indexed user, address indexed admin);
+  event RemoveWhitelistedUser(address indexed user, address indexed admin);
 
-  event SetUserRestrictions(address indexed user, address indexed manager, address indexed token, uint256 maxMint, uint256 maxBorrow);
-  event SetDefaultRestrictions(address indexed manager, address indexed token, uint256 maxMint, uint256 maxBorrow);
+  event SetWhitelistDisabled(bool whitelistDisabled, address indexed admin);
+
+  event SetUserRestrictions(address indexed user, address indexed admin, address indexed token, uint256 maxMint, uint256 maxBorrow);
+  event SetDefaultRestrictions(address indexed admin, address indexed token, uint256 maxMint, uint256 maxBorrow);
 
   event NewPendingAdmin(address oldPendingAdmin, address newPendingAdmin);
   event NewAdmin(address oldAdmin, address newAdmin);
@@ -28,6 +30,8 @@ contract CTokenRestrictions is CTokenRestrictionsInterface {
   mapping(address => UserRestrictions) public defaultRestrictions;
   // user => token => restrictions
   mapping(address => mapping(address => UserRestrictions)) public userRestrictions;
+
+  bool public whitelistDisabled;
 
   address public admin;
   address public pendingAdmin;
@@ -77,6 +81,12 @@ contract CTokenRestrictions is CTokenRestrictionsInterface {
     _setDefaultRestrictions(_tokenList, _maxMintList, _maxBorrowList);
   }
 
+  function setWhitelistDisabled(bool _whitelistDisabled) external onlyAdmin {
+    whitelistDisabled = _whitelistDisabled;
+
+    emit SetWhitelistDisabled(_whitelistDisabled, msg.sender);
+  }
+
   /*** View Functions ***/
   
   function isUserInWhiteList(address _user) external view returns (bool) {
@@ -84,7 +94,7 @@ contract CTokenRestrictions is CTokenRestrictionsInterface {
   }
 
   function validateWhitelistedUser(address _user) public view {
-    require(usersWhiteList.contains(_user), "NOT_IN_WHITELIST_ERROR");
+    require(whitelistDisabled || usersWhiteList.contains(_user), "NOT_IN_WHITELIST_ERROR");
   }
 
   function getUserRestrictionsAndValidateWhitelist(address _user, address _token) external view returns(uint256 maxMint, uint256 maxBorrow) {
