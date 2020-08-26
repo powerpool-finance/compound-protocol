@@ -108,6 +108,27 @@ describe('CTokenRestrictions', function () {
       await preApprove(cToken, minter, mintAmount);
       await expect(quickMint(cToken, minter, mintAmount)).rejects.toRevert('revert MINT_AMOUNT_EXCEED_RESTRICTIONS');
     });
+
+    it("revert on exceed max total supply", async () => {
+      await send(cTokenRestrictions, 'setDefaultRestrictions', [[cToken._address], [maxMint.mul(3)], [maxBorrow]]);
+      await send(cTokenRestrictions, 'setTotalRestrictions', [[cToken._address], [maxMint]]);
+
+      await preApprove(cToken, minter, mintAmount * 2);
+      await expect(quickMint(cToken, minter, mintAmount * 2)).rejects.toRevert('revert TOTAL_SUPPLY_EXCEED_RESTRICTIONS');
+      expect(await balanceOf(cToken, minter)).toEqualNumber(0);
+
+      await preApprove(cToken, minter, mintAmount);
+      await expect(await quickMint(cToken, minter, mintAmount)).toSucceed();
+      expect(await balanceOf(cToken, minter)).toEqualNumber(mintTokens);
+
+      await preApprove(cToken, minter, mintAmount);
+      await expect(quickMint(cToken, minter, mintAmount)).rejects.toRevert('revert TOTAL_SUPPLY_EXCEED_RESTRICTIONS');
+
+      await send(cTokenRestrictions, 'setTotalRestrictions', [[cToken._address], [maxMint.mul(2)]]);
+
+      await expect(await quickMint(cToken, minter, mintAmount)).toSucceed();
+      expect(await balanceOf(cToken, minter)).toEqualNumber(mintTokens.mul(2));
+    });
   });
 
   describe('borrow', () => {

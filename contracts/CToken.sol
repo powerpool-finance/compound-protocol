@@ -502,6 +502,12 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
             (, uint underlyingBalance) = mulScalarTruncate(exchangeRate, accountTokens[minter]);
             (uint maxMint,) = tokenRestrictions.getUserRestrictionsAndValidateWhitelist(minter, address(this));
             require(mintAmount + underlyingBalance <= maxMint, "MINT_AMOUNT_EXCEED_RESTRICTIONS");
+
+            (uint maxTotalSupply) = tokenRestrictions.totalRestrictions(address(this));
+            if(maxTotalSupply != 0) {
+                (, uint totalSupplyUnderlying) = mulScalarTruncate(exchangeRate, totalSupply);
+                require(mintAmount + totalSupplyUnderlying <= maxTotalSupply, "TOTAL_SUPPLY_EXCEED_RESTRICTIONS");
+            }
         }
 
         /* Fail if mint not allowed */
