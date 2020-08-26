@@ -13,13 +13,20 @@ contract CTokenRestrictions is CTokenRestrictionsInterface {
 
   event SetWhitelistDisabled(bool whitelistDisabled, address indexed admin);
 
-  event SetUserRestrictions(address indexed user, address indexed admin, address indexed token, uint256 maxMint, uint256 maxBorrow);
+  event SetTotalRestrictions(address indexed admin, address indexed token, uint256 maxTotalSupply);
   event SetDefaultRestrictions(address indexed admin, address indexed token, uint256 maxMint, uint256 maxBorrow);
+  event SetUserRestrictions(address indexed user, address indexed admin, address indexed token, uint256 maxMint, uint256 maxBorrow);
 
   event NewPendingAdmin(address oldPendingAdmin, address newPendingAdmin);
   event NewAdmin(address oldAdmin, address newAdmin);
 
   EnumerableSet.AddressSet internal usersWhiteList;
+
+  struct TotalRestrictions {
+    uint256 maxTotalSupply;
+  }
+  // token => restrictions
+  mapping(address => TotalRestrictions) public totalRestrictions;
 
   struct UserRestrictions {
     uint256 maxMint;
@@ -77,6 +84,10 @@ contract CTokenRestrictions is CTokenRestrictionsInterface {
     }
   }
 
+  function setTotalRestrictions(address[] calldata _tokenList, uint256[] calldata _maxTotalSupplyList) external onlyAdmin {
+    _setTotalRestrictions(_tokenList, _maxTotalSupplyList);
+  }
+
   function setDefaultRestrictions(address[] calldata _tokenList, uint256[] calldata _maxMintList, uint256[] calldata _maxBorrowList) external onlyAdmin {
     _setDefaultRestrictions(_tokenList, _maxMintList, _maxBorrowList);
   }
@@ -116,6 +127,16 @@ contract CTokenRestrictions is CTokenRestrictionsInterface {
   }
 
   /*** Internal Functions ***/
+
+  function _setTotalRestrictions(address[] memory _tokenList, uint256[] memory _maxTotalSupplyList) internal {
+    uint256 len = _tokenList.length;
+    require(len == _maxTotalSupplyList.length , "Arrays lengths are not equals");
+
+    for(uint256 i = 0; i < len; i++) {
+      totalRestrictions[_tokenList[i]] = TotalRestrictions(_maxTotalSupplyList[i]);
+      emit SetTotalRestrictions(msg.sender, _tokenList[i], _maxTotalSupplyList[i]);
+    }
+  }
 
   function _setDefaultRestrictions(address[] memory _tokenList, uint256[] memory _maxMintList, uint256[] memory _maxBorrowList) internal {
     uint256 len = _tokenList.length;
