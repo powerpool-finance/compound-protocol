@@ -501,12 +501,18 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
             Exp memory exchangeRate = Exp({mantissa: exchangeRateStored()});
             (, uint underlyingBalance) = mulScalarTruncate(exchangeRate, accountTokens[minter]);
             (uint maxMint,) = tokenRestrictions.getUserRestrictionsAndValidateWhitelist(minter, address(this));
-            require(mintAmount + underlyingBalance <= maxMint, "MINT_AMOUNT_EXCEED_RESTRICTIONS");
+
+            (MathError calcAmountMathError, uint calcAmount) = addUInt(mintAmount, underlyingBalance);
+            require(calcAmountMathError == MathError.NO_ERROR, "MINT_AMOUNT_MATH_ERROR");
+            require(calcAmount <= maxMint, "MINT_AMOUNT_EXCEED_RESTRICTIONS");
 
             (uint maxTotalSupply) = tokenRestrictions.totalRestrictions(address(this));
             if(maxTotalSupply != 0) {
                 (, uint totalSupplyUnderlying) = mulScalarTruncate(exchangeRate, totalSupply);
-                require(mintAmount + totalSupplyUnderlying <= maxTotalSupply, "TOTAL_SUPPLY_EXCEED_RESTRICTIONS");
+
+                (MathError calcSupplyMathError, uint calcSupply) = addUInt(mintAmount, totalSupplyUnderlying);
+                require(calcAmountMathError == MathError.NO_ERROR, "TOTAL_SUPPLY_MATH_ERROR");
+                require(calcSupply <= maxTotalSupply, "TOTAL_SUPPLY_EXCEED_RESTRICTIONS");
             }
         }
 
