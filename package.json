@@ -14,6 +14,7 @@
     "test": "./script/test",
     "test:prepare": "NO_RUN=true ./script/test",
     "saddle-test-restrictions": "npx saddle test tests/Restrictions/*",
+    "saddle-test-price-oracle": "npx saddle test tests/AdministratedPriceOracle/*",
     "saddle-test": "npx saddle test"
   },
   "repository": "git@github.com:compound-finance/compound-protocol.git",
