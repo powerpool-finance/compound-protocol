@@ -79,10 +79,20 @@ describe('AdministratedPriceOracle', function () {
       expect(await call(priceOracle, 'admin', [])).toEqual(root);
       expect(await call(priceOracle, 'pendingAdmin', [])).toEqual(newAdmin);
 
+      await expect(send(priceOracle, 'addManager', [manager], {from: newAdmin})).rejects.toRevert('revert Msg sender is not admin');
+      await expect(send(priceOracle, 'addManager', [manager], {from: anyone})).rejects.toRevert('revert Msg sender is not admin');
+      await expect(send(priceOracle, 'removeManager', [manager], {from: newAdmin})).rejects.toRevert('revert Msg sender is not admin');
+      await expect(send(priceOracle, 'removeManager', [manager], {from: anyone})).rejects.toRevert('revert Msg sender is not admin');
+
       await expect(send(priceOracle, '_acceptAdmin', [], {from: anyone})).rejects.toRevert('revert Msg sender are not pendingAdmin');
       await expect(await send(priceOracle, '_acceptAdmin', [], {from: newAdmin})).toSucceed();
 
       expect(await call(priceOracle, 'admin', [])).toEqual(newAdmin);
+
+      await expect(await send(priceOracle, 'addManager', [manager], {from: newAdmin})).toSucceed();
+      expect(await call(priceOracle, 'isManager', [manager])).toEqual(true);
+      await expect(await send(priceOracle, 'removeManager', [manager], {from: newAdmin})).toSucceed();
+      expect(await call(priceOracle, 'isManager', [manager])).toEqual(false);
     });
   });
 });
