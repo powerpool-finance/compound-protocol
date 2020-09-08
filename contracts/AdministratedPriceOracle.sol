@@ -16,12 +16,12 @@ contract AdministratedPriceOracle is SimplePriceOracle {
   event RemoveManager(address manager);
 
   modifier onlyAdmin() {
-    require(admin == msg.sender, "Msg sender is not admin");
+    require(admin == msg.sender, "Msg sender are not admin");
     _;
   }
 
   modifier onlyAdminOrManager() {
-    require(admin == msg.sender || isManager(msg.sender), "Msg sender is not admin or manager");
+    require(admin == msg.sender || isManager(msg.sender), "Msg sender are not admin or manager");
     _;
   }
 
