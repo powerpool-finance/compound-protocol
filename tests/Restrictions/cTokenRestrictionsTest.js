@@ -37,14 +37,14 @@ async function makeCTokenRestrictions(cTokens = [], maxMintList = [], maxBorrowL
 }
 
 describe('CTokenRestrictions', function () {
-  let root, minter, redeemer, accounts;
+  let root, minter, redeemer, newAdmin, anyone, accounts;
   let cToken;
   let cTokenRestrictions;
   let maxMint = mintAmount;
   let maxBorrow = mintAmount / 2;
 
   beforeEach(async () => {
-    [root, minter, redeemer, ...accounts] = saddle.accounts;
+    [root, minter, redeemer, newAdmin, anyone, ...accounts] = saddle.accounts;
   });
 
   describe('whitelist', () => {
@@ -184,6 +184,20 @@ describe('CTokenRestrictions', function () {
 
       await send(cTokenRestrictions, 'setDefaultRestrictions', [[cToken._address], [maxMint], ['0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff']]);
       await expect(await borrow(cToken, minter, mintAmount / 4)).toSucceed();
+    });
+
+    it("should change admin successfully", async () => {
+      expect(await call(cTokenRestrictions, 'admin', [])).toEqual(root);
+      await expect(send(cTokenRestrictions, '_setPendingAdmin', [newAdmin], {from: anyone})).rejects.toRevert('revert Msg sender are not admin');
+
+      await expect(await send(cTokenRestrictions, '_setPendingAdmin', [newAdmin], {from: root})).toSucceed();
+      expect(await call(cTokenRestrictions, 'admin', [])).toEqual(root);
+      expect(await call(cTokenRestrictions, 'pendingAdmin', [])).toEqual(newAdmin);
+
+      await expect(send(cTokenRestrictions, '_acceptAdmin', [], {from: anyone})).rejects.toRevert('revert Msg sender are not pendingAdmin');
+      await expect(await send(cTokenRestrictions, '_acceptAdmin', [], {from: newAdmin})).toSucceed();
+
+      expect(await call(cTokenRestrictions, 'admin', [])).toEqual(newAdmin);
     });
   });
 });
