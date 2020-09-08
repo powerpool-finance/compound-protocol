@@ -416,7 +416,7 @@ export function comptrollerFetchers() {
     new Fetcher<{comptroller: Comptroller}, ListV>(`
       #### GetCompMarkets
 
-      * "GetCompMarkets" - Returns an array of the currently enabled Comp markets. To use the auto-gen array getter compMarkets(uint), use CompMarkets
+      * "GetCompMarkets" - Returns an array of the currently enabled Cvp markets. To use the auto-gen array getter compMarkets(uint), use CompMarkets
       * E.g. "Comptroller GetCompMarkets"
       `,
       "GetCompMarkets",

@@ -44,8 +44,8 @@ describe('AdministratedPriceOracle', function () {
 
       expect(await priceOf(priceOracle, cToken2._address)).toEqualNumber(0);
 
-      await expect(send(priceOracle, 'setUnderlyingPrice', [cToken2._address, price], {from: anyone})).rejects.toRevert('revert Msg sender is not admin or manager');
-      await expect(send(priceOracle, 'setDirectPrice', [cToken2._address, price], {from: anyone})).rejects.toRevert('revert Msg sender is not admin or manager');
+      await expect(send(priceOracle, 'setUnderlyingPrice', [cToken2._address, price], {from: anyone})).rejects.toRevert('revert Msg sender are not admin or manager');
+      await expect(send(priceOracle, 'setDirectPrice', [cToken2._address, price], {from: anyone})).rejects.toRevert('revert Msg sender are not admin or manager');
 
       expect(await priceOf(priceOracle, cToken2._address)).toEqualNumber(0);
     });
@@ -60,7 +60,7 @@ describe('AdministratedPriceOracle', function () {
 
     it("should add and remove managers successfully", async () => {
       expect(await call(priceOracle, 'isManager', [manager])).toEqual(false);
-      await expect(send(priceOracle, 'setUnderlyingPrice', [cToken2._address, price], {from: manager})).rejects.toRevert('revert Msg sender is not admin or manager');
+      await expect(send(priceOracle, 'setUnderlyingPrice', [cToken2._address, price], {from: manager})).rejects.toRevert('revert Msg sender are not admin or manager');
 
       await send(priceOracle, 'addManager', [manager]);
 
@@ -68,21 +68,21 @@ describe('AdministratedPriceOracle', function () {
       await expect(await send(priceOracle, 'setUnderlyingPrice', [cToken._address, price], {from: manager})).toSucceed();
 
       await send(priceOracle, 'removeManager', [manager]);
-      await expect(send(priceOracle, 'setUnderlyingPrice', [cToken2._address, price], {from: manager})).rejects.toRevert('revert Msg sender is not admin or manager');
+      await expect(send(priceOracle, 'setUnderlyingPrice', [cToken2._address, price], {from: manager})).rejects.toRevert('revert Msg sender are not admin or manager');
     });
 
     it("should change admin successfully", async () => {
       expect(await call(priceOracle, 'admin', [])).toEqual(root);
-      await expect(send(priceOracle, '_setPendingAdmin', [newAdmin], {from: anyone})).rejects.toRevert('revert Msg sender is not admin');
+      await expect(send(priceOracle, '_setPendingAdmin', [newAdmin], {from: anyone})).rejects.toRevert('revert Msg sender are not admin');
 
       await expect(await send(priceOracle, '_setPendingAdmin', [newAdmin], {from: root})).toSucceed();
       expect(await call(priceOracle, 'admin', [])).toEqual(root);
       expect(await call(priceOracle, 'pendingAdmin', [])).toEqual(newAdmin);
 
-      await expect(send(priceOracle, 'addManager', [manager], {from: newAdmin})).rejects.toRevert('revert Msg sender is not admin');
-      await expect(send(priceOracle, 'addManager', [manager], {from: anyone})).rejects.toRevert('revert Msg sender is not admin');
-      await expect(send(priceOracle, 'removeManager', [manager], {from: newAdmin})).rejects.toRevert('revert Msg sender is not admin');
-      await expect(send(priceOracle, 'removeManager', [manager], {from: anyone})).rejects.toRevert('revert Msg sender is not admin');
+      await expect(send(priceOracle, 'addManager', [manager], {from: newAdmin})).rejects.toRevert('revert Msg sender are not admin');
+      await expect(send(priceOracle, 'addManager', [manager], {from: anyone})).rejects.toRevert('revert Msg sender are not admin');
+      await expect(send(priceOracle, 'removeManager', [manager], {from: newAdmin})).rejects.toRevert('revert Msg sender are not admin');
+      await expect(send(priceOracle, 'removeManager', [manager], {from: anyone})).rejects.toRevert('revert Msg sender are not admin');
 
       await expect(send(priceOracle, '_acceptAdmin', [], {from: anyone})).rejects.toRevert('revert Msg sender are not pendingAdmin');
       await expect(await send(priceOracle, '_acceptAdmin', [], {from: newAdmin})).toSucceed();

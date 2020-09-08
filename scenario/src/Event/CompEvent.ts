@@ -27,7 +27,7 @@ async function genComp(world: World, from: string, params: Event): Promise<World
 
   world = addAction(
     world,
-    `Deployed Comp (${comp.name}) to address ${comp._address}`,
+    `Deployed Cvp (${comp.name}) to address ${comp._address}`,
     tokenData.invokation
   );
 
@@ -49,7 +49,7 @@ async function approve(world: World, from: string, comp: Comp, address: string, 
 
   world = addAction(
     world,
-    `Approved Comp token for ${from} of ${amount.show()}`,
+    `Approved Cvp token for ${from} of ${amount.show()}`,
     invokation
   );
 
@@ -61,7 +61,7 @@ async function transfer(world: World, from: string, comp: Comp, address: string,
 
   world = addAction(
     world,
-    `Transferred ${amount.show()} Comp tokens from ${from} to ${address}`,
+    `Transferred ${amount.show()} Cvp tokens from ${from} to ${address}`,
     invokation
   );
 
@@ -73,7 +73,7 @@ async function transferFrom(world: World, from: string, comp: Comp, owner: strin
 
   world = addAction(
     world,
-    `"Transferred from" ${amount.show()} Comp tokens from ${owner} to ${spender}`,
+    `"Transferred from" ${amount.show()} Cvp tokens from ${owner} to ${spender}`,
     invokation
   );
 
@@ -85,7 +85,7 @@ async function transferScenario(world: World, from: string, comp: CompScenario, 
 
   world = addAction(
     world,
-    `Transferred ${amount.show()} Comp tokens from ${from} to ${addresses}`,
+    `Transferred ${amount.show()} Cvp tokens from ${from} to ${addresses}`,
     invokation
   );
 
@@ -97,7 +97,7 @@ async function transferFromScenario(world: World, from: string, comp: CompScenar
 
   world = addAction(
     world,
-    `Transferred ${amount.show()} Comp tokens from ${addresses} to ${from}`,
+    `Transferred ${amount.show()} Cvp tokens from ${addresses} to ${from}`,
     invokation
   );
 
@@ -124,7 +124,7 @@ async function setBlockNumber(
 ): Promise<World> {
   return addAction(
     world,
-    `Set Comp blockNumber to ${blockNumber.show()}`,
+    `Set Cvp blockNumber to ${blockNumber.show()}`,
     await invoke(world, comp.methods.setBlockNumber(blockNumber.encode()), from)
   );
 }
@@ -134,8 +134,8 @@ export function compCommands() {
     new Command<{ params: EventV }>(`
         #### Deploy
 
-        * "Deploy ...params" - Generates a new Comp token
-          * E.g. "Comp Deploy"
+        * "Deploy ...params" - Generates a new Cvp token
+          * E.g. "Cvp Deploy"
       `,
       "Deploy",
       [
@@ -147,14 +147,14 @@ export function compCommands() {
     new View<{ comp: Comp, apiKey: StringV, contractName: StringV }>(`
         #### Verify
 
-        * "<Comp> Verify apiKey:<String> contractName:<String>=Comp" - Verifies Comp token in Etherscan
-          * E.g. "Comp Verify "myApiKey"
+        * "<Cvp> Verify apiKey:<String> contractName:<String>=Cvp" - Verifies Cvp token in Etherscan
+          * E.g. "Cvp Verify "myApiKey"
       `,
       "Verify",
       [
         new Arg("comp", getComp, { implicit: true }),
         new Arg("apiKey", getStringV),
-        new Arg("contractName", getStringV, { default: new StringV("Comp") })
+        new Arg("contractName", getStringV, { default: new StringV("Cvp") })
       ],
       async (world, { comp, apiKey, contractName }) => {
         return await verifyComp(world, comp, apiKey.val, comp.name, contractName.val)
@@ -164,8 +164,8 @@ export function compCommands() {
     new Command<{ comp: Comp, spender: AddressV, amount: NumberV }>(`
         #### Approve
 
-        * "Comp Approve spender:<Address> <Amount>" - Adds an allowance between user and address
-          * E.g. "Comp Approve Geoff 1.0e18"
+        * "Cvp Approve spender:<Address> <Amount>" - Adds an allowance between user and address
+          * E.g. "Cvp Approve Geoff 1.0e18"
       `,
       "Approve",
       [
@@ -181,8 +181,8 @@ export function compCommands() {
     new Command<{ comp: Comp, recipient: AddressV, amount: NumberV }>(`
         #### Transfer
 
-        * "Comp Transfer recipient:<User> <Amount>" - Transfers a number of tokens via "transfer" as given user to recipient (this does not depend on allowance)
-          * E.g. "Comp Transfer Torrey 1.0e18"
+        * "Cvp Transfer recipient:<User> <Amount>" - Transfers a number of tokens via "transfer" as given user to recipient (this does not depend on allowance)
+          * E.g. "Cvp Transfer Torrey 1.0e18"
       `,
       "Transfer",
       [
@@ -196,8 +196,8 @@ export function compCommands() {
     new Command<{ comp: Comp, owner: AddressV, spender: AddressV, amount: NumberV }>(`
         #### TransferFrom
 
-        * "Comp TransferFrom owner:<User> spender:<User> <Amount>" - Transfers a number of tokens via "transfeFrom" to recipient (this depends on allowances)
-          * E.g. "Comp TransferFrom Geoff Torrey 1.0e18"
+        * "Cvp TransferFrom owner:<User> spender:<User> <Amount>" - Transfers a number of tokens via "transfeFrom" to recipient (this depends on allowances)
+          * E.g. "Cvp TransferFrom Geoff Torrey 1.0e18"
       `,
       "TransferFrom",
       [
@@ -212,8 +212,8 @@ export function compCommands() {
     new Command<{ comp: CompScenario, recipients: AddressV[], amount: NumberV }>(`
         #### TransferScenario
 
-        * "Comp TransferScenario recipients:<User[]> <Amount>" - Transfers a number of tokens via "transfer" to the given recipients (this does not depend on allowance)
-          * E.g. "Comp TransferScenario (Jared Torrey) 10"
+        * "Cvp TransferScenario recipients:<User[]> <Amount>" - Transfers a number of tokens via "transfer" to the given recipients (this does not depend on allowance)
+          * E.g. "Cvp TransferScenario (Jared Torrey) 10"
       `,
       "TransferScenario",
       [
@@ -227,8 +227,8 @@ export function compCommands() {
     new Command<{ comp: CompScenario, froms: AddressV[], amount: NumberV }>(`
         #### TransferFromScenario
 
-        * "Comp TransferFromScenario froms:<User[]> <Amount>" - Transfers a number of tokens via "transferFrom" from the given users to msg.sender (this depends on allowance)
-          * E.g. "Comp TransferFromScenario (Jared Torrey) 10"
+        * "Cvp TransferFromScenario froms:<User[]> <Amount>" - Transfers a number of tokens via "transferFrom" from the given users to msg.sender (this depends on allowance)
+          * E.g. "Cvp TransferFromScenario (Jared Torrey) 10"
       `,
       "TransferFromScenario",
       [
@@ -242,8 +242,8 @@ export function compCommands() {
     new Command<{ comp: Comp, account: AddressV }>(`
         #### Delegate
 
-        * "Comp Delegate account:<Address>" - Delegates votes to a given account
-          * E.g. "Comp Delegate Torrey"
+        * "Cvp Delegate account:<Address>" - Delegates votes to a given account
+          * E.g. "Cvp Delegate Torrey"
       `,
       "Delegate",
       [
@@ -255,8 +255,8 @@ export function compCommands() {
     new Command<{ comp: Comp, blockNumber: NumberV }>(`
       #### SetBlockNumber
 
-      * "SetBlockNumber <Seconds>" - Sets the blockTimestamp of the Comp Harness
-      * E.g. "Comp SetBlockNumber 500"
+      * "SetBlockNumber <Seconds>" - Sets the blockTimestamp of the Cvp Harness
+      * E.g. "Cvp SetBlockNumber 500"
       `,
         'SetBlockNumber',
         [new Arg('comp', getComp, { implicit: true }), new Arg('blockNumber', getNumberV)],
@@ -266,5 +266,5 @@ export function compCommands() {
 }
 
 export async function processCompEvent(world: World, event: Event, from: string | null): Promise<World> {
-  return await processCommandEvent<any>("Comp", compCommands(), world, event, from);
+  return await processCommandEvent<any>("Cvp", compCommands(), world, event, from);
 }

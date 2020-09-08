@@ -121,7 +121,7 @@ export async function getComp(
   world: World,
   compArg: Event
 ): Promise<Comp> {
-  return getWorldContract(world, [['Comp', 'address']]);
+  return getWorldContract(world, [['Cvp', 'address']]);
 }
 
 export async function getCompData(
@@ -129,7 +129,7 @@ export async function getCompData(
   compArg: string
 ): Promise<[Comp, string, Map<string, string>]> {
   let contract = await getComp(world, <Event>(<any>compArg));
-  let data = getContractData(world, [['Comp', compArg]]);
+  let data = getContractData(world, [['Cvp', compArg]]);
 
   return [contract, compArg, <Map<string, string>>(<any>data)];
 }

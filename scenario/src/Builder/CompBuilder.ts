@@ -8,7 +8,7 @@ import { Arg, Fetcher, getFetcherValue } from '../Command';
 import { storeAndSaveContract } from '../Networks';
 import { getContract } from '../Contract';
 
-const CompContract = getContract('Comp');
+const CompContract = getContract('Cvp');
 const CompScenarioContract = getContract('CompScenario');
 
 export interface TokenData {
@@ -30,8 +30,8 @@ export async function buildComp(
       `
       #### Scenario
 
-      * "Comp Deploy Scenario account:<Address>" - Deploys Scenario Comp Token
-        * E.g. "Comp Deploy Scenario Geoff"
+      * "Cvp Deploy Scenario account:<Address>" - Deploys Scenario Cvp Token
+        * E.g. "Cvp Deploy Scenario Geoff"
     `,
       'Scenario',
       [
@@ -41,8 +41,8 @@ export async function buildComp(
         return {
           invokation: await CompScenarioContract.deploy<CompScenario>(world, from, [account.val]),
           contract: 'CompScenario',
-          symbol: 'COMP',
-          name: 'Compound Governance Token',
+          symbol: 'CVP',
+          name: 'Concentrated Voting Power',
           decimals: 18
         };
       }
@@ -50,12 +50,12 @@ export async function buildComp(
 
     new Fetcher<{ account: AddressV }, TokenData>(
       `
-      #### Comp
+      #### Cvp
 
-      * "Comp Deploy account:<Address>" - Deploys Comp Token
-        * E.g. "Comp Deploy Geoff"
+      * "Cvp Deploy account:<Address>" - Deploys Cvp Token
+        * E.g. "Cvp Deploy Geoff"
     `,
-      'Comp',
+      'Cvp',
       [
         new Arg("account", getAddressV),
       ],
@@ -64,16 +64,16 @@ export async function buildComp(
           return {
             invokation: await CompScenarioContract.deploy<CompScenario>(world, from, [account.val]),
             contract: 'CompScenario',
-            symbol: 'COMP',
-            name: 'Compound Governance Token',
+            symbol: 'CVP',
+            name: 'Concentrated Voting Power',
             decimals: 18
           };
         } else {
           return {
             invokation: await CompContract.deploy<Comp>(world, from, [account.val]),
-            contract: 'Comp',
-            symbol: 'COMP',
-            name: 'Compound Governance Token',
+            contract: 'Cvp',
+            symbol: 'CVP',
+            name: 'Concentrated Voting Power',
             decimals: 18
           };
         }
@@ -96,10 +96,10 @@ export async function buildComp(
   world = await storeAndSaveContract(
     world,
     comp,
-    'Comp',
+    'Cvp',
     invokation,
     [
-      { index: ['Comp'], data: tokenData },
+      { index: ['Cvp'], data: tokenData },
       { index: ['Tokens', tokenData.symbol], data: tokenData }
     ]
   );

@@ -22,11 +22,11 @@ contract GovernorAlphaInterface {
     /// @notice The duration of voting on a proposal, in blocks
     function votingPeriod() external pure returns (uint);
 
-    /// @notice The address of the Compound Protocol Timelock
+    /// @notice The address of the PowerPool Protocol Timelock
     function timelock() external view returns (TimelockInterface);
 
-    /// @notice The address of the Compound governance token
-    function comp() external view returns (CvpInterface);
+    /// @notice The address of the PowerPool governance token
+    function cvp() external view returns (CvpInterface);
 
     /// @notice The address of the Governor Guardian
     function guardian() external view returns (address);

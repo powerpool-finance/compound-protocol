@@ -945,11 +945,11 @@ const fetchers = [
   ),
   new Fetcher<{ res: Value }, Value>(
     `
-      #### Comp
+      #### Cvp
 
-      * "Comp ...compArgs" - Returns Comp value
+      * "Cvp ...compArgs" - Returns Cvp value
     `,
-    'Comp',
+    'Cvp',
     [new Arg('res', getCompValue, { variadic: true })],
     async (world, { res }) => res,
     { subExpressions: compFetchers() }

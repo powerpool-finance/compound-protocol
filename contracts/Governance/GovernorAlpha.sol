@@ -1,3 +1,18 @@
+/*
+https://powerpool.finance/
+
+          wrrrw r wrr
+         ppwr rrr wppr0       prwwwrp                                 prwwwrp                   wr0
+        rr 0rrrwrrprpwp0      pp   pr  prrrr0 pp   0r  prrrr0  0rwrrr pp   pr  prrrr0  prrrr0    r0
+        rrp pr   wr00rrp      prwww0  pp   wr pp w00r prwwwpr  0rw    prwww0  pp   wr pp   wr    r0
+        r0rprprwrrrp pr0      pp      wr   pr pp rwwr wr       0r     pp      wr   pr wr   pr    r0
+         prwr wrr0wpwr        00        www0   0w0ww    www0   0w     00        www0    www0   0www0
+          wrr ww0rrrr
+
+*/
+
+
+
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
@@ -6,13 +21,13 @@ import "./GovernorAlphaInterface.sol";
 
 contract GovernorAlpha is GovernorAlphaInterface {
     /// @notice The name of this contract
-    string public constant name = "Compound Governor Alpha";
+    string public constant name = "PowerPool Governor Alpha";
 
     /// @notice The number of votes in support of a proposal required in order for a quorum to be reached and for a vote to succeed
-    function quorumVotes() public pure returns (uint) { return 400000e18; } // 400,000 = 4% of Comp
+    function quorumVotes() public pure returns (uint) { return 400000e18; } // 400,000 = 4% of Cvp
 
     /// @notice The number of votes required in order for a voter to become a proposer
-    function proposalThreshold() public pure returns (uint) { return 100000e18; } // 100,000 = 1% of Comp
+    function proposalThreshold() public pure returns (uint) { return 10000e18; } // 10,000 = 1% of Cvp
 
     /// @notice The maximum number of actions that can be included in a proposal
     function proposalMaxOperations() public pure returns (uint) { return 10; } // 10 actions
@@ -23,11 +38,11 @@ contract GovernorAlpha is GovernorAlphaInterface {
     /// @notice The duration of voting on a proposal, in blocks
     function votingPeriod() public pure returns (uint) { return 17280; } // ~3 days in blocks (assuming 15s blocks)
 
-    /// @notice The address of the Compound Protocol Timelock
+    /// @notice The address of the PowerPool Protocol Timelock
     TimelockInterface public timelock;
 
-    /// @notice The address of the Compound governance token
-    CvpInterface public comp;
+    /// @notice The address of the PowerPool governance token
+    CvpInterface public cvp;
 
     /// @notice The address of the Governor Guardian
     address public guardian;
@@ -106,14 +121,14 @@ contract GovernorAlpha is GovernorAlphaInterface {
     /// @notice An event emitted when a proposal has been executed in the Timelock
     event ProposalExecuted(uint id);
 
-    constructor(address timelock_, address comp_, address guardian_) public {
+    constructor(address timelock_, address cvp_, address guardian_) public {
         timelock = TimelockInterface(timelock_);
-        comp = CvpInterface(comp_);
+        cvp = CvpInterface(cvp_);
         guardian = guardian_;
     }
 
     function propose(address[] memory targets, uint[] memory values, string[] memory signatures, bytes[] memory calldatas, string memory description) public returns (uint) {
-        require(comp.getPriorVotes(msg.sender, sub256(block.number, 1)) > proposalThreshold(), "GovernorAlpha::propose: proposer votes below proposal threshold");
+        require(cvp.getPriorVotes(msg.sender, sub256(block.number, 1)) > proposalThreshold(), "GovernorAlpha::propose: proposer votes below proposal threshold");
         require(targets.length == values.length && targets.length == signatures.length && targets.length == calldatas.length, "GovernorAlpha::propose: proposal function information arity mismatch");
         require(targets.length != 0, "GovernorAlpha::propose: must provide actions");
         require(targets.length <= proposalMaxOperations(), "GovernorAlpha::propose: too many actions");
@@ -183,7 +198,7 @@ contract GovernorAlpha is GovernorAlphaInterface {
         require(state != ProposalState.Executed, "GovernorAlpha::cancel: cannot cancel executed proposal");
 
         Proposal storage proposal = proposals[proposalId];
-        require(msg.sender == guardian || comp.getPriorVotes(proposal.proposer, sub256(block.number, 1)) < proposalThreshold(), "GovernorAlpha::cancel: proposer above threshold");
+        require(msg.sender == guardian || cvp.getPriorVotes(proposal.proposer, sub256(block.number, 1)) < proposalThreshold(), "GovernorAlpha::cancel: proposer above threshold");
 
         proposal.canceled = true;
         for (uint i = 0; i < proposal.targets.length; i++) {
@@ -242,7 +257,7 @@ contract GovernorAlpha is GovernorAlphaInterface {
         Proposal storage proposal = proposals[proposalId];
         Receipt storage receipt = proposal.receipts[voter];
         require(receipt.hasVoted == false, "GovernorAlpha::_castVote: voter already voted");
-        uint96 votes = comp.getPriorVotes(voter, proposal.startBlock);
+        uint96 votes = cvp.getPriorVotes(voter, proposal.startBlock);
 
         if (support) {
             proposal.forVotes = add256(proposal.forVotes, votes);

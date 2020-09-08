@@ -20,8 +20,8 @@ export function compFetchers() {
     new Fetcher<{ comp: Comp }, AddressV>(`
         #### Address
 
-        * "<Comp> Address" - Returns the address of Comp token
-          * E.g. "Comp Address"
+        * "<Cvp> Address" - Returns the address of Cvp token
+          * E.g. "Cvp Address"
       `,
       "Address",
       [
@@ -33,8 +33,8 @@ export function compFetchers() {
     new Fetcher<{ comp: Comp }, StringV>(`
         #### Name
 
-        * "<Comp> Name" - Returns the name of the Comp token
-          * E.g. "Comp Name"
+        * "<Cvp> Name" - Returns the name of the Cvp token
+          * E.g. "Cvp Name"
       `,
       "Name",
       [
@@ -46,8 +46,8 @@ export function compFetchers() {
     new Fetcher<{ comp: Comp }, StringV>(`
         #### Symbol
 
-        * "<Comp> Symbol" - Returns the symbol of the Comp token
-          * E.g. "Comp Symbol"
+        * "<Cvp> Symbol" - Returns the symbol of the Cvp token
+          * E.g. "Cvp Symbol"
       `,
       "Symbol",
       [
@@ -59,8 +59,8 @@ export function compFetchers() {
     new Fetcher<{ comp: Comp }, NumberV>(`
         #### Decimals
 
-        * "<Comp> Decimals" - Returns the number of decimals of the Comp token
-          * E.g. "Comp Decimals"
+        * "<Cvp> Decimals" - Returns the number of decimals of the Cvp token
+          * E.g. "Cvp Decimals"
       `,
       "Decimals",
       [
@@ -72,7 +72,7 @@ export function compFetchers() {
     new Fetcher<{ comp: Comp }, NumberV>(`
         #### TotalSupply
 
-        * "Comp TotalSupply" - Returns Comp token's total supply
+        * "Cvp TotalSupply" - Returns Cvp token's total supply
       `,
       "TotalSupply",
       [
@@ -84,8 +84,8 @@ export function compFetchers() {
     new Fetcher<{ comp: Comp, address: AddressV }, NumberV>(`
         #### TokenBalance
 
-        * "Comp TokenBalance <Address>" - Returns the Comp token balance of a given address
-          * E.g. "Comp TokenBalance Geoff" - Returns Geoff's Comp balance
+        * "Cvp TokenBalance <Address>" - Returns the Cvp token balance of a given address
+          * E.g. "Cvp TokenBalance Geoff" - Returns Geoff's Cvp balance
       `,
       "TokenBalance",
       [
@@ -98,8 +98,8 @@ export function compFetchers() {
     new Fetcher<{ comp: Comp, owner: AddressV, spender: AddressV }, NumberV>(`
         #### Allowance
 
-        * "Comp Allowance owner:<Address> spender:<Address>" - Returns the Comp allowance from owner to spender
-          * E.g. "Comp Allowance Geoff Torrey" - Returns the Comp allowance of Geoff to Torrey
+        * "Cvp Allowance owner:<Address> spender:<Address>" - Returns the Cvp allowance from owner to spender
+          * E.g. "Cvp Allowance Geoff Torrey" - Returns the Cvp allowance of Geoff to Torrey
       `,
       "Allowance",
       [
@@ -113,8 +113,8 @@ export function compFetchers() {
     new Fetcher<{ comp: Comp, account: AddressV }, NumberV>(`
         #### GetCurrentVotes
 
-        * "Comp GetCurrentVotes account:<Address>" - Returns the current Comp votes balance for an account
-          * E.g. "Comp GetCurrentVotes Geoff" - Returns the current Comp vote balance of Geoff
+        * "Cvp GetCurrentVotes account:<Address>" - Returns the current Cvp votes balance for an account
+          * E.g. "Cvp GetCurrentVotes Geoff" - Returns the current Cvp vote balance of Geoff
       `,
       "GetCurrentVotes",
       [
@@ -127,8 +127,8 @@ export function compFetchers() {
     new Fetcher<{ comp: Comp, account: AddressV, blockNumber: NumberV }, NumberV>(`
         #### GetPriorVotes
 
-        * "Comp GetPriorVotes account:<Address> blockBumber:<Number>" - Returns the current Comp votes balance at given block
-          * E.g. "Comp GetPriorVotes Geoff 5" - Returns the Comp vote balance for Geoff at block 5
+        * "Cvp GetPriorVotes account:<Address> blockBumber:<Number>" - Returns the current Cvp votes balance at given block
+          * E.g. "Cvp GetPriorVotes Geoff 5" - Returns the Cvp vote balance for Geoff at block 5
       `,
       "GetPriorVotes",
       [
@@ -142,8 +142,8 @@ export function compFetchers() {
     new Fetcher<{ comp: Comp, account: AddressV }, NumberV>(`
         #### GetCurrentVotesBlock
 
-        * "Comp GetCurrentVotesBlock account:<Address>" - Returns the current Comp votes checkpoint block for an account
-          * E.g. "Comp GetCurrentVotesBlock Geoff" - Returns the current Comp votes checkpoint block for Geoff
+        * "Cvp GetCurrentVotesBlock account:<Address>" - Returns the current Cvp votes checkpoint block for an account
+          * E.g. "Cvp GetCurrentVotesBlock Geoff" - Returns the current Cvp votes checkpoint block for Geoff
       `,
       "GetCurrentVotesBlock",
       [
@@ -161,8 +161,8 @@ export function compFetchers() {
     new Fetcher<{ comp: Comp, account: AddressV }, NumberV>(`
         #### VotesLength
 
-        * "Comp VotesLength account:<Address>" - Returns the Comp vote checkpoint array length
-          * E.g. "Comp VotesLength Geoff" - Returns the Comp vote checkpoint array length of Geoff
+        * "Cvp VotesLength account:<Address>" - Returns the Cvp vote checkpoint array length
+          * E.g. "Cvp VotesLength Geoff" - Returns the Cvp vote checkpoint array length of Geoff
       `,
       "VotesLength",
       [
@@ -175,8 +175,8 @@ export function compFetchers() {
     new Fetcher<{ comp: Comp, account: AddressV }, ListV>(`
         #### AllVotes
 
-        * "Comp AllVotes account:<Address>" - Returns information about all votes an account has had
-          * E.g. "Comp AllVotes Geoff" - Returns the Comp vote checkpoint array
+        * "Cvp AllVotes account:<Address>" - Returns information about all votes an account has had
+          * E.g. "Cvp AllVotes Geoff" - Returns the Cvp vote checkpoint array
       `,
       "AllVotes",
       [
@@ -198,5 +198,5 @@ export function compFetchers() {
 }
 
 export async function getCompValue(world: World, event: Event): Promise<Value> {
-  return await getFetcherValue<any, any>("Comp", compFetchers(), world, event);
+  return await getFetcherValue<any, any>("Cvp", compFetchers(), world, event);
 }

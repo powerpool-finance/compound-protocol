@@ -9,7 +9,7 @@ UseConfigs mainnet
 
 -- Propose to apply the patch
 
-From CompHolder (Comp Delegate CompHolder)
+From CompHolder (Cvp Delegate CompHolder)
 From CompHolder (Governor GovernorAlpha Propose "COMP Distribution Patch" [(Address Unitroller) (Address StdComptrollerG4)] [0 0] ["_setPendingImplementation(address)" "_become(address)"] [[(Address StdComptrollerG4)] [(Address Unitroller)]])
 
 -- Vote for, queue, and execute the proposal
@@ -160,13 +160,13 @@ AdvanceBlocks 1000000
 -- And check that they receive the right amount of COMP when claimed
 
 -- cUSDC: 47481175626857 / 1067945787269646173 * 8315963040053015 * 1e6 = 369730098960081900
-Expect Changes (Erc20 Comp TokenBalance USDCWhale) 0.369731208150378785e18
+Expect Changes (Erc20 Cvp TokenBalance USDCWhale) 0.369731208150378785e18
 Comptroller ClaimComp USDCWhale
 
 -- cETH: 1034370824418 / 5163948275203265 * 205623888489784 * 1e6 = 41187738474944500
 -- cBAT: 123004206941461188039104 / 933675278927019769365181653 * 160029281076361778 * 1e6 = 21082570408023708000
 --  = 0.041187738474944495 + 21.082570408023706 = 21.123758146498652
-Expect Changes (Erc20 Comp TokenBalance cBATBorrower) 22.576722556314661630e18
+Expect Changes (Erc20 Cvp TokenBalance cBATBorrower) 22.576722556314661630e18
 Comptroller ClaimComp cBATBorrower
 
 Print "COMP distribution patch OK!"

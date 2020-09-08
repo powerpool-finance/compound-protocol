@@ -241,7 +241,7 @@ async function claimComp(world: World, from: string, comptroller: Comptroller, h
 
   world = addAction(
     world,
-    `Comp claimed by ${holder}`,
+    `Cvp claimed by ${holder}`,
     invokation
   );
 
@@ -253,7 +253,7 @@ async function setCompRate(world: World, from: string, comptroller: Comptroller,
 
   world = addAction(
     world,
-    `Comp rate set to ${rate.show()}`,
+    `Cvp rate set to ${rate.show()}`,
     invokation
   );
 

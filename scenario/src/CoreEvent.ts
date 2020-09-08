@@ -436,7 +436,7 @@ export const commands: (View<any> | ((world: World) => Promise<View<any>>))[] = 
       #### Block
 
       * "Block 10 (...event)" - Set block to block N and run event
-        * E.g. "Block 10 (Comp Deploy Admin)"
+        * E.g. "Block 10 (Cvp Deploy Admin)"
     `,
     'Block',
     [
@@ -782,12 +782,12 @@ export const commands: (View<any> | ((world: World) => Promise<View<any>>))[] = 
 
   new Command<{ event: EventV }>(
     `
-      #### Comp
+      #### Cvp
 
-      * "Comp ...event" - Runs given comp event
-      * E.g. "Comp Deploy"
+      * "Cvp ...event" - Runs given comp event
+      * E.g. "Cvp Deploy"
     `,
-    'Comp',
+    'Cvp',
     [new Arg('event', getEventV, { variadic: true })],
     (world, from, { event }) => {
       return processCompEvent(world, event.val, from);

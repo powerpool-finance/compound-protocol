@@ -12,7 +12,7 @@ const {
 const path = require('path');
 const solparse = require('solparse');
 
-const governorAlphaPath = path.join(__dirname, '../../..', 'contracts', 'Governance/GovernorAlpha.sol');
+const governorAlphaPath = path.join(__dirname, '../../..', 'contracts', 'Governance/GovernorAlphaInterface.sol');
 
 const statesInverted = solparse
   .parseFile(governorAlphaPath)
@@ -26,11 +26,12 @@ const states = Object.entries(statesInverted).reduce((obj, [key, value]) => ({ .
 
 describe('GovernorAlpha#state/1', () => {
   let comp, gov, root, acct, delay, timelock;
+  
 
   beforeAll(async () => {
     await freezeTime(100);
     [root, acct, ...accounts] = accounts;
-    comp = await deploy('Comp', [root]);
+    comp = await deploy('Cvp', [root]);
     delay = etherUnsigned(2 * 24 * 60 * 60).mul(2)
     timelock = await deploy('TimelockHarness', [root, delay]);
     gov = await deploy('GovernorAlpha', [timelock._address, comp._address, root]);

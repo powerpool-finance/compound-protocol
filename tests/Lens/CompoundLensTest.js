@@ -160,7 +160,7 @@ describe('CompoundLens', () => {
       let cErc20 = await makeCToken();
       let cEth = await makeCToken({kind: 'cether'});
       let ethBalance = await web3.eth.getBalance(acct);
-      
+
       expect(
         (await call(compoundLens, 'cTokenBalancesAll', [[cErc20._address, cEth._address], acct], {gasPrice: '0'})).map(cullTuple)
       ).toEqual([
@@ -249,7 +249,7 @@ describe('CompoundLens', () => {
     let proposalBlock, proposalId;
 
     beforeEach(async () => {
-      comp = await deploy('Comp', [acct]);
+      comp = await deploy('Cvp', [acct]);
       gov = await deploy('GovernorAlpha', [address(0), comp._address, address(0)]);
       targets = [acct];
       values = ["0"];
@@ -305,7 +305,7 @@ describe('CompoundLens', () => {
 
     beforeEach(async () => {
       currentBlock = +(await web3.eth.getBlockNumber());
-      comp = await deploy('Comp', [acct]);
+      comp = await deploy('Cvp', [acct]);
     });
 
     describe('getCompBalanceMetadata', () => {
@@ -313,7 +313,7 @@ describe('CompoundLens', () => {
         expect(
           cullTuple(await call(compoundLens, 'getCompBalanceMetadata', [comp._address, acct]))
         ).toEqual({
-          balance: "10000000000000000000000000",
+          balance: "100000000000000000000000000",
           delegate: "0x0000000000000000000000000000000000000000",
           votes: "0",
         });
@@ -328,7 +328,7 @@ describe('CompoundLens', () => {
         expect(
           cullTuple(await call(compoundLens, 'getCompBalanceMetadataExt', [comp._address, comptroller._address, acct]))
         ).toEqual({
-          balance: "10000000000000000000000000",
+          balance: "100000000000000000000000000",
           delegate: "0x0000000000000000000000000000000000000000",
           votes: "0",
           allocated: "5"
@@ -355,7 +355,7 @@ describe('CompoundLens', () => {
       it('reverts on future value', async () => {
         await expect(
           call(compoundLens, 'getCompVotes', [comp._address, acct, [currentBlock + 1]])
-        ).rejects.toRevert('revert Comp::getPriorVotes: not yet determined')
+        ).rejects.toRevert('revert Cvp::getPriorVotes: not yet determined')
       });
     });
   });
