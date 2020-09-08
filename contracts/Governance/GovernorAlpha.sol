@@ -24,10 +24,10 @@ contract GovernorAlpha is GovernorAlphaInterface {
     string public constant name = "PowerPool Governor Alpha";
 
     /// @notice The number of votes in support of a proposal required in order for a quorum to be reached and for a vote to succeed
-    function quorumVotes() public pure returns (uint) { return 400000e18; } // 400,000 = 4% of Cvp
+    function quorumVotes() public pure returns (uint) { return 400000e18; } // 400,000 = 0.4% of Cvp
 
     /// @notice The number of votes required in order for a voter to become a proposer
-    function proposalThreshold() public pure returns (uint) { return 10000e18; } // 10,000 = 1% of Cvp
+    function proposalThreshold() public pure returns (uint) { return 10000e18; } // 10,000 = 0.01% of Cvp
 
     /// @notice The maximum number of actions that can be included in a proposal
     function proposalMaxOperations() public pure returns (uint) { return 10; } // 10 actions
