@@ -10,6 +10,8 @@ Currently, we plan to add ETH, wBTC, and DAI as collaterals for borrowing govern
 
 Talking about the economic nature of governance tokens, they are unique assets in the context of lending/borrowing mechanics. The utility of governance tokens is not constant in time (comparing, for example, with payment tokens such as stablecoins). Talking strictly, it appears only during voting. Our vision is to introduce a novel type of lending logic, which is not available by default in Compound or any other lending protocols but can be very suitable for governance tokens. 
 
+🚨 **Security review status: an audit is in progress**
+
 Contracts
 =========
 
@@ -28,11 +30,6 @@ We detail a few of the core contracts in the Powerpool protocol.
 <dl>
   <dt>CVP</dt>
   <dd>The Concentrated Voting Power Token (CVP). Holders of this token have the ability to govern the protocol via the governor contract.</dd>
-</dl>
-
-<dl>
-  <dt>Governor Alpha</dt>
-  <dd>The administrator of the Compound timelock contract. Holders of Comp token may create and vote on proposals which will be queued into the Compound timelock and then have effects on Compound cToken and Comptroller contracts. This contract may be replaced in the future with a beta version.</dd>
 </dl>
 
 <dl>
