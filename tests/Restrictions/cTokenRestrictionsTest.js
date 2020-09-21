@@ -59,7 +59,7 @@ describe('CTokenRestrictions', function () {
       await expect(quickMint(cToken, minter, mintAmount)).rejects.toRevert('revert NOT_IN_WHITELIST_ERROR');
       expect(await balanceOf(cToken, minter)).toEqualNumber(0);
 
-      await send(cTokenRestrictions, 'addUserToWhiteList', [[minter], [], [], []]);
+      await send(cTokenRestrictions, 'addUserToWhiteListAndSetRestrictions', [[minter], [], [], []]);
 
       await expect(await quickMint(cToken, minter, mintAmount)).toSucceed();
       expect(await balanceOf(cToken, minter)).toEqualNumber(mintTokens);
@@ -87,7 +87,7 @@ describe('CTokenRestrictions', function () {
       cTokenRestrictions = await makeCTokenRestrictions([cToken._address], [maxMint], [maxBorrow]);
       await send(cToken, '_setTokenRestrictions', [cTokenRestrictions._address]);
       await preMint(cToken, minter, mintAmount, mintTokens, exchangeRate);
-      await send(cTokenRestrictions, 'addUserToWhiteList', [[minter], [], [], []]);
+      await send(cTokenRestrictions, 'addUserToWhiteListAndSetRestrictions', [[minter], [], [], []]);
     });
 
     it("returns success from mintFresh and mints the correct number of tokens", async () => {
@@ -151,7 +151,7 @@ describe('CTokenRestrictions', function () {
       cTokenRestrictions = await makeCTokenRestrictions([cToken._address], [maxMint], [maxBorrow]);
       await send(cToken, '_setTokenRestrictions', [cTokenRestrictions._address]);
       await preMint(cToken, minter, mintAmount, mintTokens, exchangeRate);
-      await send(cTokenRestrictions, 'addUserToWhiteList', [[minter], [], [], []]);
+      await send(cTokenRestrictions, 'addUserToWhiteListAndSetRestrictions', [[minter], [], [], []]);
 
       await send(cToken.comptroller, 'setBorrowAllowed', [true]);
       await send(cToken.comptroller, 'setBorrowVerify', [true]);
