@@ -13,8 +13,8 @@ interface ComptrollerLensInterface {
     function oracle() external view returns (PriceOracle);
     function getAccountLiquidity(address) external view returns (uint, uint, uint);
     function getAssetsIn(address) external view returns (CToken[] memory);
-    function claimComp(address) external;
-    function compAccrued(address) external view returns (uint);
+    function claimCvp(address) external;
+    function cvpAccrued(address) external view returns (uint);
 }
 
 contract CompoundLens {
@@ -254,54 +254,54 @@ contract CompoundLens {
         return res;
     }
 
-    struct CompBalanceMetadata {
+    struct CvpBalanceMetadata {
         uint balance;
         uint votes;
         address delegate;
     }
 
-    function getCompBalanceMetadata(CvpInterface comp, address account) external view returns (CompBalanceMetadata memory) {
-        return CompBalanceMetadata({
-            balance: comp.balanceOf(account),
-            votes: uint256(comp.getCurrentVotes(account)),
-            delegate: comp.delegates(account)
+    function getCvpBalanceMetadata(CvpInterface cvp, address account) external view returns (CvpBalanceMetadata memory) {
+        return CvpBalanceMetadata({
+            balance: cvp.balanceOf(account),
+            votes: uint256(cvp.getCurrentVotes(account)),
+            delegate: cvp.delegates(account)
         });
     }
 
-    struct CompBalanceMetadataExt {
+    struct CvpBalanceMetadataExt {
         uint balance;
         uint votes;
         address delegate;
         uint allocated;
     }
 
-    function getCompBalanceMetadataExt(CvpInterface comp, ComptrollerLensInterface comptroller, address account) external returns (CompBalanceMetadataExt memory) {
-        uint balance = comp.balanceOf(account);
-        comptroller.claimComp(account);
-        uint newBalance = comp.balanceOf(account);
-        uint accrued = comptroller.compAccrued(account);
-        uint total = add(accrued, newBalance, "sum comp total");
+    function getCvpBalanceMetadataExt(CvpInterface cvp, ComptrollerLensInterface comptroller, address account) external returns (CvpBalanceMetadataExt memory) {
+        uint balance = cvp.balanceOf(account);
+        comptroller.claimCvp(account);
+        uint newBalance = cvp.balanceOf(account);
+        uint accrued = comptroller.cvpAccrued(account);
+        uint total = add(accrued, newBalance, "sum cvp total");
         uint allocated = sub(total, balance, "sub allocated");
 
-        return CompBalanceMetadataExt({
+        return CvpBalanceMetadataExt({
             balance: balance,
-            votes: uint256(comp.getCurrentVotes(account)),
-            delegate: comp.delegates(account),
+            votes: uint256(cvp.getCurrentVotes(account)),
+            delegate: cvp.delegates(account),
             allocated: allocated
         });
     }
 
-    struct CompVotes {
+    struct CvpVotes {
         uint blockNumber;
         uint votes;
     }
 
-    function getCompVotes(CvpInterface comp, address account, uint32[] calldata blockNumbers) external view returns (CompVotes[] memory) {
-        CompVotes[] memory res = new CompVotes[](blockNumbers.length);
+    function getCvpVotes(CvpInterface cvp, address account, uint32[] calldata blockNumbers) external view returns (CvpVotes[] memory) {
+        CvpVotes[] memory res = new CvpVotes[](blockNumbers.length);
         for (uint i = 0; i < blockNumbers.length; i++) {
-            res[i] = CompVotes({
+            res[i] = CvpVotes({
                 blockNumber: uint256(blockNumbers[i]),
-                votes: uint256(comp.getPriorVotes(account, blockNumbers[i]))
+                votes: uint256(cvp.getPriorVotes(account, blockNumbers[i]))
             });
         }
         return res;

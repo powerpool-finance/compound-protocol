@@ -4,16 +4,16 @@ import "../../contracts/ComptrollerG3.sol";
 
 contract ComptrollerScenarioG3 is ComptrollerG3 {
     uint public blockNumber;
-    address public compAddress;
+    address public cvpAddress;
 
     constructor() ComptrollerG3() public {}
 
-    function setCompAddress(address compAddress_) public {
-        compAddress = compAddress_;
+    function setCvpAddress(address cvpAddress_) public {
+        cvpAddress = cvpAddress_;
     }
 
-    function getCompAddress() public view returns (address) {
-        return compAddress;
+    function getCvpAddress() public view returns (address) {
+        return cvpAddress;
     }
 
     function membershipLength(CToken cToken) public view returns (uint) {
@@ -34,7 +34,7 @@ contract ComptrollerScenarioG3 is ComptrollerG3 {
         return blockNumber;
     }
 
-    function getCompMarkets() public view returns (address[] memory) {
+    function getCvpMarkets() public view returns (address[] memory) {
         uint m = allMarkets.length;
         uint n = 0;
         for (uint i = 0; i < m; i++) {
@@ -43,14 +43,14 @@ contract ComptrollerScenarioG3 is ComptrollerG3 {
             }
         }
 
-        address[] memory compMarkets = new address[](n);
+        address[] memory cvpMarkets = new address[](n);
         uint k = 0;
         for (uint i = 0; i < m; i++) {
             if (markets[address(allMarkets[i])].isComped) {
-                compMarkets[k++] = address(allMarkets[i]);
+                cvpMarkets[k++] = address(allMarkets[i]);
             }
         }
-        return compMarkets;
+        return cvpMarkets;
     }
 
     function unlist(CToken cToken) public {

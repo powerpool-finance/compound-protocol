@@ -201,7 +201,7 @@ async function sendAny(world: World, from:string, comptroller: Comptroller, sign
 }
 
 async function addCompMarkets(world: World, from: string, comptroller: Comptroller, cTokens: CToken[]): Promise<World> {
-  let invokation = await invoke(world, comptroller.methods._addCompMarkets(cTokens.map(c => c._address)), from, ComptrollerErrorReporter);
+  let invokation = await invoke(world, comptroller.methods._addCvpMarkets(cTokens.map(c => c._address)), from, ComptrollerErrorReporter);
 
   world = addAction(
     world,
@@ -213,7 +213,7 @@ async function addCompMarkets(world: World, from: string, comptroller: Comptroll
 }
 
 async function dropCompMarket(world: World, from: string, comptroller: Comptroller, cToken: CToken): Promise<World> {
-  let invokation = await invoke(world, comptroller.methods._dropCompMarket(cToken._address), from, ComptrollerErrorReporter);
+  let invokation = await invoke(world, comptroller.methods._dropCvpMarket(cToken._address), from, ComptrollerErrorReporter);
 
   world = addAction(
     world,
@@ -225,7 +225,7 @@ async function dropCompMarket(world: World, from: string, comptroller: Comptroll
 }
 
 async function refreshCompSpeeds(world: World, from: string, comptroller: Comptroller): Promise<World> {
-  let invokation = await invoke(world, comptroller.methods.refreshCompSpeeds(), from, ComptrollerErrorReporter);
+  let invokation = await invoke(world, comptroller.methods.refreshCvpSpeeds(), from, ComptrollerErrorReporter);
 
   world = addAction(
     world,
@@ -237,7 +237,7 @@ async function refreshCompSpeeds(world: World, from: string, comptroller: Comptr
 }
 
 async function claimComp(world: World, from: string, comptroller: Comptroller, holder: string): Promise<World> {
-  let invokation = await invoke(world, comptroller.methods.claimComp(holder), from, ComptrollerErrorReporter);
+  let invokation = await invoke(world, comptroller.methods.claimCvp(holder), from, ComptrollerErrorReporter);
 
   world = addAction(
     world,
@@ -249,7 +249,7 @@ async function claimComp(world: World, from: string, comptroller: Comptroller, h
 }
 
 async function setCompRate(world: World, from: string, comptroller: Comptroller, rate: NumberV): Promise<World> {
-  let invokation = await invoke(world, comptroller.methods._setCompRate(rate.encode()), from, ComptrollerErrorReporter);
+  let invokation = await invoke(world, comptroller.methods._setCvpRate(rate.encode()), from, ComptrollerErrorReporter);
 
   world = addAction(
     world,

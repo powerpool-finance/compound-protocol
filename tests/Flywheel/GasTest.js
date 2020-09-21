@@ -18,15 +18,15 @@ describe.skip('Flywheel trace ops', () => {
     [root, a1, a2, a3, ...accounts] = saddle.accounts;
     comptroller = await makeComptroller();
     market = await makeCToken({comptroller, supportMarket: true, underlyingPrice: 3, interestRateModelOpts});
-    await send(comptroller, '_addCompMarkets', [[market].map(c => c._address)]);
+    await send(comptroller, '_addCvpMarkets', [[market].map(c => c._address)]);
   });
 
   it('update supply index SSTOREs', async () => {
     await send(comptroller, 'setBlockNumber', [100]);
     await send(market, 'harnessSetTotalBorrows', [etherUnsigned(11e18)]);
-    await send(comptroller, 'setCompSpeed', [market._address, etherExp(0.5)]);
+    await send(comptroller, 'setCvpSpeed', [market._address, etherExp(0.5)]);
 
-    const tx = await send(comptroller, 'harnessUpdateCompSupplyIndex', [market._address]);
+    const tx = await send(comptroller, 'harnessUpdateCvpSupplyIndex', [market._address]);
 
     const ops = {};
     await saddle.trace(tx, {
@@ -42,9 +42,9 @@ describe.skip('Flywheel trace ops', () => {
   it('update borrow index SSTOREs', async () => {
     await send(comptroller, 'setBlockNumber', [100]);
     await send(market, 'harnessSetTotalBorrows', [etherUnsigned(11e18)]);
-    await send(comptroller, 'setCompSpeed', [market._address, etherExp(0.5)]);
+    await send(comptroller, 'setCvpSpeed', [market._address, etherExp(0.5)]);
 
-    const tx = await send(comptroller, 'harnessUpdateCompBorrowIndex', [market._address, etherExp(1.1)]);
+    const tx = await send(comptroller, 'harnessUpdateCvpBorrowIndex', [market._address, etherExp(1.1)]);
 
     const ops = {};
     await saddle.trace(tx, {
