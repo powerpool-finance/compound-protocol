@@ -54,7 +54,7 @@ contract CTokenRestrictions is CTokenRestrictionsInterface {
 
   /*** Admin Functions ***/
 
-  function addUserToWhiteList(address[] calldata _userList, address[] calldata _tokenList, uint256[] calldata _maxMintList, uint256[] calldata _maxBorrowList) external onlyAdmin {
+  function addUserToWhiteListAndSetRestrictions(address[] calldata _userList, address[] calldata _tokenList, uint256[] calldata _maxMintList, uint256[] calldata _maxBorrowList) external onlyAdmin {
     uint256 len = _userList.length;
 
     for(uint256 i = 0; i < len; i++) {

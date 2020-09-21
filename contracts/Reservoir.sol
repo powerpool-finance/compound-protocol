@@ -19,7 +19,7 @@ contract Reservoir {
   /// @notice The block number when the Reservoir started (immutable)
   uint public dripStart;
 
-  /// @notice Tokens per block that to drip to target (immutable)
+  /// @notice Tokens per block that to drip to target
   uint public dripRate;
 
   /// @notice Reference to token to drip (immutable)
