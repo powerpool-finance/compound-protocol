@@ -50,23 +50,23 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
     /// @notice Emitted when market comped status is changed
     event MarketComped(CToken cToken, bool isComped);
 
-    /// @notice Emitted when COMP rate is changed
-    event NewCompRate(uint oldCompRate, uint newCompRate);
+    /// @notice Emitted when CVP rate is changed
+    event NewCvpRate(uint oldCvpRate, uint newCvpRate);
 
-    /// @notice Emitted when a new COMP speed is calculated for a market
-    event CompSpeedUpdated(CToken indexed cToken, uint newSpeed);
+    /// @notice Emitted when a new CVP speed is calculated for a market
+    event CvpSpeedUpdated(CToken indexed cToken, uint newSpeed);
 
-    /// @notice Emitted when COMP is distributed to a supplier
-    event DistributedSupplierComp(CToken indexed cToken, address indexed supplier, uint compDelta, uint compSupplyIndex);
+    /// @notice Emitted when CVP is distributed to a supplier
+    event DistributedSupplierCvp(CToken indexed cToken, address indexed supplier, uint cvpDelta, uint cvpSupplyIndex);
 
-    /// @notice Emitted when COMP is distributed to a borrower
-    event DistributedBorrowerComp(CToken indexed cToken, address indexed borrower, uint compDelta, uint compBorrowIndex);
+    /// @notice Emitted when CVP is distributed to a borrower
+    event DistributedBorrowerCvp(CToken indexed cToken, address indexed borrower, uint cvpDelta, uint cvpBorrowIndex);
 
-    /// @notice The threshold above which the flywheel transfers COMP, in wei
-    uint public constant compClaimThreshold = 0.001e18;
+    /// @notice The threshold above which the flywheel transfers CVP, in wei
+    uint public constant cvpClaimThreshold = 0.001e18;
 
-    /// @notice The initial COMP index for a market
-    uint224 public constant compInitialIndex = 1e36;
+    /// @notice The initial CVP index for a market
+    uint224 public constant cvpInitialIndex = 1e36;
 
     // closeFactorMantissa must be strictly greater than this value
     uint internal constant closeFactorMinMantissa = 0.05e18; // 0.05
@@ -246,8 +246,8 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
         }
 
         // Keep the flywheel moving
-        updateCompSupplyIndex(cToken);
-        distributeSupplierComp(cToken, minter, false);
+        updateCvpSupplyIndex(cToken);
+        distributeSupplierCvp(cToken, minter, false);
 
         return uint(Error.NO_ERROR);
     }
@@ -286,8 +286,8 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
         }
 
         // Keep the flywheel moving
-        updateCompSupplyIndex(cToken);
-        distributeSupplierComp(cToken, redeemer, false);
+        updateCvpSupplyIndex(cToken);
+        distributeSupplierCvp(cToken, redeemer, false);
 
         return uint(Error.NO_ERROR);
     }
@@ -375,8 +375,8 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
 
         // Keep the flywheel moving
         Exp memory borrowIndex = Exp({mantissa: CToken(cToken).borrowIndex()});
-        updateCompBorrowIndex(cToken, borrowIndex);
-        distributeBorrowerComp(cToken, borrower, borrowIndex, false);
+        updateCvpBorrowIndex(cToken, borrowIndex);
+        distributeBorrowerCvp(cToken, borrower, borrowIndex, false);
 
         return uint(Error.NO_ERROR);
     }
@@ -423,8 +423,8 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
 
         // Keep the flywheel moving
         Exp memory borrowIndex = Exp({mantissa: CToken(cToken).borrowIndex()});
-        updateCompBorrowIndex(cToken, borrowIndex);
-        distributeBorrowerComp(cToken, borrower, borrowIndex, false);
+        updateCvpBorrowIndex(cToken, borrowIndex);
+        distributeBorrowerCvp(cToken, borrower, borrowIndex, false);
 
         return uint(Error.NO_ERROR);
     }
@@ -556,9 +556,9 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
         }
 
         // Keep the flywheel moving
-        updateCompSupplyIndex(cTokenCollateral);
-        distributeSupplierComp(cTokenCollateral, borrower, false);
-        distributeSupplierComp(cTokenCollateral, liquidator, false);
+        updateCvpSupplyIndex(cTokenCollateral);
+        distributeSupplierCvp(cTokenCollateral, borrower, false);
+        distributeSupplierCvp(cTokenCollateral, liquidator, false);
 
         return uint(Error.NO_ERROR);
     }
@@ -610,9 +610,9 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
         }
 
         // Keep the flywheel moving
-        updateCompSupplyIndex(cToken);
-        distributeSupplierComp(cToken, src, false);
-        distributeSupplierComp(cToken, dst, false);
+        updateCvpSupplyIndex(cToken);
+        distributeSupplierCvp(cToken, src, false);
+        distributeSupplierCvp(cToken, dst, false);
 
         return uint(Error.NO_ERROR);
     }
@@ -1081,26 +1081,26 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
         return state;
     }
 
-    function _become(Unitroller unitroller, uint compRate_, address[] memory compMarketsToAdd, address[] memory otherMarketsToAdd) public {
+    function _become(Unitroller unitroller, uint cvpRate_, address[] memory cvpMarketsToAdd, address[] memory otherMarketsToAdd) public {
         require(msg.sender == unitroller.admin(), "only unitroller admin can change brains");
         require(unitroller._acceptImplementation() == 0, "change not authorized");
 
-        ComptrollerG3(address(unitroller))._becomeG3(compRate_, compMarketsToAdd, otherMarketsToAdd);
+        ComptrollerG3(address(unitroller))._becomeG3(cvpRate_, cvpMarketsToAdd, otherMarketsToAdd);
     }
 
-    function _becomeG3(uint compRate_, address[] memory compMarketsToAdd, address[] memory otherMarketsToAdd) public {
+    function _becomeG3(uint cvpRate_, address[] memory cvpMarketsToAdd, address[] memory otherMarketsToAdd) public {
         require(msg.sender == comptrollerImplementation, "only brains can become itself");
 
-        for (uint i = 0; i < compMarketsToAdd.length; i++) {
-            _addMarketInternal(address(compMarketsToAdd[i]));
+        for (uint i = 0; i < cvpMarketsToAdd.length; i++) {
+            _addMarketInternal(address(cvpMarketsToAdd[i]));
         }
 
         for (uint i = 0; i < otherMarketsToAdd.length; i++) {
             _addMarketInternal(address(otherMarketsToAdd[i]));
         }
 
-        _setCompRate(compRate_);
-        _addCompMarkets(compMarketsToAdd);
+        _setCvpRate(cvpRate_);
+        _addCvpMarkets(cvpMarketsToAdd);
     }
 
     /**
@@ -1110,19 +1110,19 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
         return msg.sender == admin || msg.sender == comptrollerImplementation;
     }
 
-    /*** Comp Distribution ***/
+    /*** Cvp Distribution ***/
 
     /**
-     * @notice Recalculate and update COMP speeds for all COMP markets
+     * @notice Recalculate and update CVP speeds for all CVP markets
      */
-    function refreshCompSpeeds() public {
+    function refreshCvpSpeeds() public {
         CToken[] memory allMarkets_ = allMarkets;
 
         for (uint i = 0; i < allMarkets_.length; i++) {
             CToken cToken = allMarkets_[i];
             Exp memory borrowIndex = Exp({mantissa: cToken.borrowIndex()});
-            updateCompSupplyIndex(address(cToken));
-            updateCompBorrowIndex(address(cToken), borrowIndex);
+            updateCvpSupplyIndex(address(cToken));
+            updateCvpBorrowIndex(address(cToken), borrowIndex);
         }
 
         Exp memory totalUtility = Exp({mantissa: 0});
@@ -1140,27 +1140,27 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
 
         for (uint i = 0; i < allMarkets_.length; i++) {
             CToken cToken = allMarkets[i];
-            uint newSpeed = totalUtility.mantissa > 0 ? mul_(compRate, div_(utilities[i], totalUtility)) : 0;
-            compSpeeds[address(cToken)] = newSpeed;
-            emit CompSpeedUpdated(cToken, newSpeed);
+            uint newSpeed = totalUtility.mantissa > 0 ? mul_(cvpRate, div_(utilities[i], totalUtility)) : 0;
+            cvpSpeeds[address(cToken)] = newSpeed;
+            emit CvpSpeedUpdated(cToken, newSpeed);
         }
     }
 
     /**
-     * @notice Accrue COMP to the market by updating the supply index
+     * @notice Accrue CVP to the market by updating the supply index
      * @param cToken The market whose supply index to update
      */
-    function updateCompSupplyIndex(address cToken) internal {
-        CompMarketState storage supplyState = compSupplyState[cToken];
-        uint supplySpeed = compSpeeds[cToken];
+    function updateCvpSupplyIndex(address cToken) internal {
+        CvpMarketState storage supplyState = cvpSupplyState[cToken];
+        uint supplySpeed = cvpSpeeds[cToken];
         uint blockNumber = getBlockNumber();
         uint deltaBlocks = sub_(blockNumber, uint(supplyState.block));
         if (deltaBlocks > 0 && supplySpeed > 0) {
             uint supplyTokens = CToken(cToken).totalSupply();
-            uint compAccrued = mul_(deltaBlocks, supplySpeed);
-            Double memory ratio = supplyTokens > 0 ? fraction(compAccrued, supplyTokens) : Double({mantissa: 0});
+            uint cvpAccrued = mul_(deltaBlocks, supplySpeed);
+            Double memory ratio = supplyTokens > 0 ? fraction(cvpAccrued, supplyTokens) : Double({mantissa: 0});
             Double memory index = add_(Double({mantissa: supplyState.index}), ratio);
-            compSupplyState[cToken] = CompMarketState({
+            cvpSupplyState[cToken] = CvpMarketState({
                 index: safe224(index.mantissa, "new index exceeds 224 bits"),
                 block: safe32(blockNumber, "block number exceeds 32 bits")
             });
@@ -1170,20 +1170,20 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
     }
 
     /**
-     * @notice Accrue COMP to the market by updating the borrow index
+     * @notice Accrue CVP to the market by updating the borrow index
      * @param cToken The market whose borrow index to update
      */
-    function updateCompBorrowIndex(address cToken, Exp memory marketBorrowIndex) internal {
-        CompMarketState storage borrowState = compBorrowState[cToken];
-        uint borrowSpeed = compSpeeds[cToken];
+    function updateCvpBorrowIndex(address cToken, Exp memory marketBorrowIndex) internal {
+        CvpMarketState storage borrowState = cvpBorrowState[cToken];
+        uint borrowSpeed = cvpSpeeds[cToken];
         uint blockNumber = getBlockNumber();
         uint deltaBlocks = sub_(blockNumber, uint(borrowState.block));
         if (deltaBlocks > 0 && borrowSpeed > 0) {
             uint borrowAmount = div_(CToken(cToken).totalBorrows(), marketBorrowIndex);
-            uint compAccrued = mul_(deltaBlocks, borrowSpeed);
-            Double memory ratio = borrowAmount > 0 ? fraction(compAccrued, borrowAmount) : Double({mantissa: 0});
+            uint cvpAccrued = mul_(deltaBlocks, borrowSpeed);
+            Double memory ratio = borrowAmount > 0 ? fraction(cvpAccrued, borrowAmount) : Double({mantissa: 0});
             Double memory index = add_(Double({mantissa: borrowState.index}), ratio);
-            compBorrowState[cToken] = CompMarketState({
+            cvpBorrowState[cToken] = CvpMarketState({
                 index: safe224(index.mantissa, "new index exceeds 224 bits"),
                 block: safe32(blockNumber, "block number exceeds 32 bits")
             });
@@ -1193,63 +1193,63 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
     }
 
     /**
-     * @notice Calculate COMP accrued by a supplier and possibly transfer it to them
+     * @notice Calculate CVP accrued by a supplier and possibly transfer it to them
      * @param cToken The market in which the supplier is interacting
-     * @param supplier The address of the supplier to distribute COMP to
+     * @param supplier The address of the supplier to distribute CVP to
      */
-    function distributeSupplierComp(address cToken, address supplier, bool distributeAll) internal {
-        CompMarketState storage supplyState = compSupplyState[cToken];
+    function distributeSupplierCvp(address cToken, address supplier, bool distributeAll) internal {
+        CvpMarketState storage supplyState = cvpSupplyState[cToken];
         Double memory supplyIndex = Double({mantissa: supplyState.index});
-        Double memory supplierIndex = Double({mantissa: compSupplierIndex[cToken][supplier]});
-        compSupplierIndex[cToken][supplier] = supplyIndex.mantissa;
+        Double memory supplierIndex = Double({mantissa: cvpSupplierIndex[cToken][supplier]});
+        cvpSupplierIndex[cToken][supplier] = supplyIndex.mantissa;
 
         if (supplierIndex.mantissa == 0 && supplyIndex.mantissa > 0) {
-            supplierIndex.mantissa = compInitialIndex;
+            supplierIndex.mantissa = cvpInitialIndex;
         }
 
         Double memory deltaIndex = sub_(supplyIndex, supplierIndex);
         uint supplierTokens = CToken(cToken).balanceOf(supplier);
         uint supplierDelta = mul_(supplierTokens, deltaIndex);
-        uint supplierAccrued = add_(compAccrued[supplier], supplierDelta);
-        compAccrued[supplier] = transferComp(supplier, supplierAccrued, distributeAll ? 0 : compClaimThreshold);
-        emit DistributedSupplierComp(CToken(cToken), supplier, supplierDelta, supplyIndex.mantissa);
+        uint supplierAccrued = add_(cvpAccrued[supplier], supplierDelta);
+        cvpAccrued[supplier] = transferCvp(supplier, supplierAccrued, distributeAll ? 0 : cvpClaimThreshold);
+        emit DistributedSupplierCvp(CToken(cToken), supplier, supplierDelta, supplyIndex.mantissa);
     }
 
     /**
-     * @notice Calculate COMP accrued by a borrower and possibly transfer it to them
+     * @notice Calculate CVP accrued by a borrower and possibly transfer it to them
      * @dev Borrowers will not begin to accrue until after the first interaction with the protocol.
      * @param cToken The market in which the borrower is interacting
-     * @param borrower The address of the borrower to distribute COMP to
+     * @param borrower The address of the borrower to distribute CVP to
      */
-    function distributeBorrowerComp(address cToken, address borrower, Exp memory marketBorrowIndex, bool distributeAll) internal {
-        CompMarketState storage borrowState = compBorrowState[cToken];
+    function distributeBorrowerCvp(address cToken, address borrower, Exp memory marketBorrowIndex, bool distributeAll) internal {
+        CvpMarketState storage borrowState = cvpBorrowState[cToken];
         Double memory borrowIndex = Double({mantissa: borrowState.index});
-        Double memory borrowerIndex = Double({mantissa: compBorrowerIndex[cToken][borrower]});
-        compBorrowerIndex[cToken][borrower] = borrowIndex.mantissa;
+        Double memory borrowerIndex = Double({mantissa: cvpBorrowerIndex[cToken][borrower]});
+        cvpBorrowerIndex[cToken][borrower] = borrowIndex.mantissa;
 
         if (borrowerIndex.mantissa > 0) {
             Double memory deltaIndex = sub_(borrowIndex, borrowerIndex);
             uint borrowerAmount = div_(CToken(cToken).borrowBalanceStored(borrower), marketBorrowIndex);
             uint borrowerDelta = mul_(borrowerAmount, deltaIndex);
-            uint borrowerAccrued = add_(compAccrued[borrower], borrowerDelta);
-            compAccrued[borrower] = transferComp(borrower, borrowerAccrued, distributeAll ? 0 : compClaimThreshold);
-            emit DistributedBorrowerComp(CToken(cToken), borrower, borrowerDelta, borrowIndex.mantissa);
+            uint borrowerAccrued = add_(cvpAccrued[borrower], borrowerDelta);
+            cvpAccrued[borrower] = transferCvp(borrower, borrowerAccrued, distributeAll ? 0 : cvpClaimThreshold);
+            emit DistributedBorrowerCvp(CToken(cToken), borrower, borrowerDelta, borrowIndex.mantissa);
         }
     }
 
     /**
-     * @notice Transfer COMP to the user, if they are above the threshold
-     * @dev Note: If there is not enough COMP, we do not perform the transfer all.
-     * @param user The address of the user to transfer COMP to
-     * @param userAccrued The amount of COMP to (possibly) transfer
-     * @return The amount of COMP which was NOT transferred to the user
+     * @notice Transfer CVP to the user, if they are above the threshold
+     * @dev Note: If there is not enough CVP, we do not perform the transfer all.
+     * @param user The address of the user to transfer CVP to
+     * @param userAccrued The amount of CVP to (possibly) transfer
+     * @return The amount of CVP which was NOT transferred to the user
      */
-    function transferComp(address user, uint userAccrued, uint threshold) internal returns (uint) {
+    function transferCvp(address user, uint userAccrued, uint threshold) internal returns (uint) {
         if (userAccrued >= threshold && userAccrued > 0) {
-            CvpInterface comp = CvpInterface(getCompAddress());
-            uint compRemaining = comp.balanceOf(address(this));
-            if (userAccrued <= compRemaining) {
-                comp.transfer(user, userAccrued);
+            CvpInterface cvp = CvpInterface(getCvpAddress());
+            uint cvpRemaining = cvp.balanceOf(address(this));
+            if (userAccrued <= cvpRemaining) {
+                cvp.transfer(user, userAccrued);
                 return 0;
             }
         }
@@ -1257,118 +1257,118 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
     }
 
     /**
-     * @notice Claim all the comp accrued by holder in all markets
-     * @param holder The address to claim COMP for
+     * @notice Claim all the cvp accrued by holder in all markets
+     * @param holder The address to claim CVP for
      */
-    function claimComp(address holder) public {
-        return claimComp(holder, allMarkets);
+    function claimCvp(address holder) public {
+        return claimCvp(holder, allMarkets);
     }
 
     /**
-     * @notice Claim all the comp accrued by holder in the specified markets
-     * @param holder The address to claim COMP for
-     * @param cTokens The list of markets to claim COMP in
+     * @notice Claim all the cvp accrued by holder in the specified markets
+     * @param holder The address to claim CVP for
+     * @param cTokens The list of markets to claim CVP in
      */
-    function claimComp(address holder, CToken[] memory cTokens) public {
+    function claimCvp(address holder, CToken[] memory cTokens) public {
         address[] memory holders = new address[](1);
         holders[0] = holder;
-        claimComp(holders, cTokens, true, true);
+        claimCvp(holders, cTokens, true, true);
     }
 
     /**
-     * @notice Claim all comp accrued by the holders
-     * @param holders The addresses to claim COMP for
-     * @param cTokens The list of markets to claim COMP in
-     * @param borrowers Whether or not to claim COMP earned by borrowing
-     * @param suppliers Whether or not to claim COMP earned by supplying
+     * @notice Claim all cvp accrued by the holders
+     * @param holders The addresses to claim CVP for
+     * @param cTokens The list of markets to claim CVP in
+     * @param borrowers Whether or not to claim CVP earned by borrowing
+     * @param suppliers Whether or not to claim CVP earned by supplying
      */
-    function claimComp(address[] memory holders, CToken[] memory cTokens, bool borrowers, bool suppliers) public {
+    function claimCvp(address[] memory holders, CToken[] memory cTokens, bool borrowers, bool suppliers) public {
         for (uint i = 0; i < cTokens.length; i++) {
             CToken cToken = cTokens[i];
             require(markets[address(cToken)].isListed, "market must be listed");
             if (borrowers == true) {
                 Exp memory borrowIndex = Exp({mantissa: cToken.borrowIndex()});
-                updateCompBorrowIndex(address(cToken), borrowIndex);
+                updateCvpBorrowIndex(address(cToken), borrowIndex);
                 for (uint j = 0; j < holders.length; j++) {
-                    distributeBorrowerComp(address(cToken), holders[j], borrowIndex, true);
+                    distributeBorrowerCvp(address(cToken), holders[j], borrowIndex, true);
                 }
             }
             if (suppliers == true) {
-                updateCompSupplyIndex(address(cToken));
+                updateCvpSupplyIndex(address(cToken));
                 for (uint j = 0; j < holders.length; j++) {
-                    distributeSupplierComp(address(cToken), holders[j], true);
+                    distributeSupplierCvp(address(cToken), holders[j], true);
                 }
             }
         }
     }
 
-    /*** Comp Distribution Admin ***/
+    /*** Cvp Distribution Admin ***/
 
     /**
-     * @notice Set the amount of COMP distributed per block
-     * @param compRate_ The amount of COMP wei per block to distribute
+     * @notice Set the amount of CVP distributed per block
+     * @param cvpRate_ The amount of CVP wei per block to distribute
      */
-    function _setCompRate(uint compRate_) public {
-        require(adminOrInitializing(), "only admin can change comp rate");
+    function _setCvpRate(uint cvpRate_) public {
+        require(adminOrInitializing(), "only admin can change cvp rate");
 
-        uint oldRate = compRate;
-        compRate = compRate_;
-        emit NewCompRate(oldRate, compRate_);
+        uint oldRate = cvpRate;
+        cvpRate = cvpRate_;
+        emit NewCvpRate(oldRate, cvpRate_);
 
-        refreshCompSpeeds();
+        refreshCvpSpeeds();
     }
 
     /**
-     * @notice Add markets to compMarkets, allowing them to earn COMP in the flywheel
+     * @notice Add markets to cvpMarkets, allowing them to earn CVP in the flywheel
      * @param cTokens The addresses of the markets to add
      */
-    function _addCompMarkets(address[] memory cTokens) public {
-        require(adminOrInitializing(), "only admin can add comp market");
+    function _addCvpMarkets(address[] memory cTokens) public {
+        require(adminOrInitializing(), "only admin can add cvp market");
 
         for (uint i = 0; i < cTokens.length; i++) {
-            _addCompMarketInternal(cTokens[i]);
+            _addCvpMarketInternal(cTokens[i]);
         }
 
-        refreshCompSpeeds();
+        refreshCvpSpeeds();
     }
 
-    function _addCompMarketInternal(address cToken) internal {
+    function _addCvpMarketInternal(address cToken) internal {
         Market storage market = markets[cToken];
-        require(market.isListed == true, "comp market is not listed");
-        require(market.isComped == false, "comp market already added");
+        require(market.isListed == true, "cvp market is not listed");
+        require(market.isComped == false, "cvp market already added");
 
         market.isComped = true;
         emit MarketComped(CToken(cToken), true);
 
-        if (compSupplyState[cToken].index == 0 && compSupplyState[cToken].block == 0) {
-            compSupplyState[cToken] = CompMarketState({
-                index: compInitialIndex,
+        if (cvpSupplyState[cToken].index == 0 && cvpSupplyState[cToken].block == 0) {
+            cvpSupplyState[cToken] = CvpMarketState({
+                index: cvpInitialIndex,
                 block: safe32(getBlockNumber(), "block number exceeds 32 bits")
             });
         }
 
-        if (compBorrowState[cToken].index == 0 && compBorrowState[cToken].block == 0) {
-            compBorrowState[cToken] = CompMarketState({
-                index: compInitialIndex,
+        if (cvpBorrowState[cToken].index == 0 && cvpBorrowState[cToken].block == 0) {
+            cvpBorrowState[cToken] = CvpMarketState({
+                index: cvpInitialIndex,
                 block: safe32(getBlockNumber(), "block number exceeds 32 bits")
             });
         }
     }
 
     /**
-     * @notice Remove a market from compMarkets, preventing it from earning COMP in the flywheel
+     * @notice Remove a market from cvpMarkets, preventing it from earning CVP in the flywheel
      * @param cToken The address of the market to drop
      */
-    function _dropCompMarket(address cToken) public {
-        require(msg.sender == admin, "only admin can drop comp market");
+    function _dropCvpMarket(address cToken) public {
+        require(msg.sender == admin, "only admin can drop cvp market");
 
         Market storage market = markets[cToken];
-        require(market.isComped == true, "market is not a comp market");
+        require(market.isComped == true, "market is not a cvp market");
 
         market.isComped = false;
         emit MarketComped(CToken(cToken), false);
 
-        refreshCompSpeeds();
+        refreshCvpSpeeds();
     }
 
     /**
@@ -1385,10 +1385,10 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
     }
 
     /**
-     * @notice Return the address of the COMP token
-     * @return The address of COMP
+     * @notice Return the address of the CVP token
+     * @return The address of CVP
      */
-    function getCompAddress() public view returns (address) {
+    function getCvpAddress() public view returns (address) {
         return 0xc00e94Cb662C3520282E6f5717214004A7f26888;
     }
 }

@@ -69,7 +69,7 @@ contract ComptrollerV2Storage is ComptrollerV1Storage {
         /// @notice Per-market mapping of "accounts in this asset"
         mapping(address => bool) accountMembership;
 
-        /// @notice Whether or not this market receives COMP
+        /// @notice Whether or not this market receives CVP
         bool isComped;
     }
 
@@ -95,8 +95,8 @@ contract ComptrollerV2Storage is ComptrollerV1Storage {
 }
 
 contract ComptrollerV3Storage is ComptrollerV2Storage {
-    struct CompMarketState {
-        /// @notice The market's last updated compBorrowIndex or compSupplyIndex
+    struct CvpMarketState {
+        /// @notice The market's last updated cvpBorrowIndex or cvpSupplyIndex
         uint224 index;
 
         /// @notice The block number the index was last updated at
@@ -106,27 +106,27 @@ contract ComptrollerV3Storage is ComptrollerV2Storage {
     /// @notice A list of all markets
     CToken[] public allMarkets;
 
-    /// @notice The rate at which the flywheel distributes COMP, per block
-    uint public compRate;
+    /// @notice The rate at which the flywheel distributes CVP, per block
+    uint public cvpRate;
 
     /// @notice The portion of compRate that each market currently receives
-    mapping(address => uint) public compSpeeds;
+    mapping(address => uint) public cvpSpeeds;
 
-    /// @notice The COMP market supply state for each market
-    mapping(address => CompMarketState) public compSupplyState;
+    /// @notice The CVP market supply state for each market
+    mapping(address => CvpMarketState) public cvpSupplyState;
 
-    /// @notice The COMP market borrow state for each market
-    mapping(address => CompMarketState) public compBorrowState;
+    /// @notice The CVP market borrow state for each market
+    mapping(address => CvpMarketState) public cvpBorrowState;
 
-    /// @notice The COMP borrow index for each market for each supplier as of the last time they accrued COMP
-    mapping(address => mapping(address => uint)) public compSupplierIndex;
+    /// @notice The CVP borrow index for each market for each supplier as of the last time they accrued CVP
+    mapping(address => mapping(address => uint)) public cvpSupplierIndex;
 
-    /// @notice The COMP borrow index for each market for each borrower as of the last time they accrued COMP
-    mapping(address => mapping(address => uint)) public compBorrowerIndex;
+    /// @notice The CVP borrow index for each market for each borrower as of the last time they accrued CVP
+    mapping(address => mapping(address => uint)) public cvpBorrowerIndex;
 
-    /// @notice The COMP accrued but not yet transferred to each user
-    mapping(address => uint) public compAccrued;
+    /// @notice The CVP accrued but not yet transferred to each user
+    mapping(address => uint) public cvpAccrued;
 
-    /// @notice The COMP address
-    address public compAddress;
+    /// @notice The CVP address
+    address public cvpAddress;
 }

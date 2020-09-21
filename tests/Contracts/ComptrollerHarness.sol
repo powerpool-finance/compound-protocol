@@ -4,19 +4,19 @@ import "../../contracts/Comptroller.sol";
 import "../../contracts/PriceOracle.sol";
 
 contract ComptrollerKovan is Comptroller {
-  function getCompAddress() public view returns (address) {
+  function getCvpAddress() public view returns (address) {
     return 0x61460874a7196d6a22D1eE4922473664b3E95270;
   }
 }
 
 contract ComptrollerRopsten is Comptroller {
-  function getCompAddress() public view returns (address) {
+  function getCvpAddress() public view returns (address) {
     return 0x1Fe16De955718CFAb7A44605458AB023838C2793;
   }
 }
 
 contract ComptrollerHarness is Comptroller {
-    address compAddress;
+    address cvpAddress;
     uint public blockNumber;
 
     constructor() Comptroller() public {}
@@ -25,58 +25,58 @@ contract ComptrollerHarness is Comptroller {
         pauseGuardian = harnessedPauseGuardian;
     }
 
-    function setCompSupplyState(address cToken, uint224 index, uint32 blockNumber_) public {
-        compSupplyState[cToken].index = index;
-        compSupplyState[cToken].block = blockNumber_;
+    function setCvpSupplyState(address cToken, uint224 index, uint32 blockNumber_) public {
+        cvpSupplyState[cToken].index = index;
+        cvpSupplyState[cToken].block = blockNumber_;
     }
 
-    function setCompBorrowState(address cToken, uint224 index, uint32 blockNumber_) public {
-        compBorrowState[cToken].index = index;
-        compBorrowState[cToken].block = blockNumber_;
+    function setCvpBorrowState(address cToken, uint224 index, uint32 blockNumber_) public {
+        cvpBorrowState[cToken].index = index;
+        cvpBorrowState[cToken].block = blockNumber_;
     }
 
-    function setCompAccrued(address user, uint userAccrued) public {
-        compAccrued[user] = userAccrued;
+    function setCvpAccrued(address user, uint userAccrued) public {
+        cvpAccrued[user] = userAccrued;
     }
 
-    function setCompAddress(address compAddress_) public {
-        compAddress = compAddress_;
+    function setCvpAddress(address cvpAddress_) public {
+        cvpAddress = cvpAddress_;
     }
 
-    function getCompAddress() public view returns (address) {
-        return compAddress;
+    function getCvpAddress() public view returns (address) {
+        return cvpAddress;
     }
 
-    function setCompSpeed(address cToken, uint compSpeed) public {
-        compSpeeds[cToken] = compSpeed;
+    function setCvpSpeed(address cToken, uint cvpSpeed) public {
+        cvpSpeeds[cToken] = cvpSpeed;
     }
 
-    function setCompBorrowerIndex(address cToken, address borrower, uint index) public {
-        compBorrowerIndex[cToken][borrower] = index;
+    function setCvpBorrowerIndex(address cToken, address borrower, uint index) public {
+        cvpBorrowerIndex[cToken][borrower] = index;
     }
 
-    function setCompSupplierIndex(address cToken, address supplier, uint index) public {
-        compSupplierIndex[cToken][supplier] = index;
+    function setCvpSupplierIndex(address cToken, address supplier, uint index) public {
+        cvpSupplierIndex[cToken][supplier] = index;
     }
 
-    function harnessUpdateCompBorrowIndex(address cToken, uint marketBorrowIndexMantissa) public {
-        updateCompBorrowIndex(cToken, Exp({mantissa: marketBorrowIndexMantissa}));
+    function harnessUpdateCvpBorrowIndex(address cToken, uint marketBorrowIndexMantissa) public {
+        updateCvpBorrowIndex(cToken, Exp({mantissa: marketBorrowIndexMantissa}));
     }
 
-    function harnessUpdateCompSupplyIndex(address cToken) public {
-        updateCompSupplyIndex(cToken);
+    function harnessUpdateCvpSupplyIndex(address cToken) public {
+        updateCvpSupplyIndex(cToken);
     }
 
-    function harnessDistributeBorrowerComp(address cToken, address borrower, uint marketBorrowIndexMantissa) public {
-        distributeBorrowerComp(cToken, borrower, Exp({mantissa: marketBorrowIndexMantissa}), false);
+    function harnessDistributeBorrowerCvp(address cToken, address borrower, uint marketBorrowIndexMantissa) public {
+        distributeBorrowerCvp(cToken, borrower, Exp({mantissa: marketBorrowIndexMantissa}), false);
     }
 
-    function harnessDistributeSupplierComp(address cToken, address supplier) public {
-        distributeSupplierComp(cToken, supplier, false);
+    function harnessDistributeSupplierCvp(address cToken, address supplier) public {
+        distributeSupplierCvp(cToken, supplier, false);
     }
 
-    function harnessTransferComp(address user, uint userAccrued, uint threshold) public returns (uint) {
-        return transferComp(user, userAccrued, threshold);
+    function harnessTransferCvp(address user, uint userAccrued, uint threshold) public returns (uint) {
+        return transferCvp(user, userAccrued, threshold);
     }
 
     function harnessFastForward(uint blocks) public returns (uint) {
@@ -92,7 +92,7 @@ contract ComptrollerHarness is Comptroller {
         return blockNumber;
     }
 
-    function getCompMarkets() public view returns (address[] memory) {
+    function getCvpMarkets() public view returns (address[] memory) {
         uint m = allMarkets.length;
         uint n = 0;
         for (uint i = 0; i < m; i++) {
@@ -101,14 +101,14 @@ contract ComptrollerHarness is Comptroller {
             }
         }
 
-        address[] memory compMarkets = new address[](n);
+        address[] memory cvpMarkets = new address[](n);
         uint k = 0;
         for (uint i = 0; i < m; i++) {
             if (markets[address(allMarkets[i])].isComped) {
-                compMarkets[k++] = address(allMarkets[i]);
+                cvpMarkets[k++] = address(allMarkets[i]);
             }
         }
-        return compMarkets;
+        return cvpMarkets;
     }
 }
 

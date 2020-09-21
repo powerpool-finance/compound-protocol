@@ -45,19 +45,19 @@ interface ComptrollerMethods {
   seizeGuardianPaused(): Callable<boolean>
   mintGuardianPaused(market: string): Callable<boolean>
   borrowGuardianPaused(market: string): Callable<boolean>
-  _addCompMarkets(markets: string[]): Sendable<void>
-  _dropCompMarket(market: string): Sendable<void>
-  getCompMarkets(): Callable<string[]>
-  refreshCompSpeeds(): Sendable<void>
-  compRate(): Callable<number>
-  compSupplyState(string): Callable<string>
-  compBorrowState(string): Callable<string>
-  compAccrued(string): Callable<string>
-  compSupplierIndex(market: string, account: string): Callable<string>
-  compBorrowerIndex(market: string, account: string): Callable<string>
-  compSpeeds(string): Callable<string>
-  claimComp(string): Sendable<void>
-  _setCompRate(encodedNumber): Sendable<void>
+  _addCvpMarkets(markets: string[]): Sendable<void>
+  _dropCvpMarket(market: string): Sendable<void>
+  getCvpMarkets(): Callable<string[]>
+  refreshCvpSpeeds(): Sendable<void>
+  cvpRate(): Callable<number>
+  cvpSupplyState(string): Callable<string>
+  cvpBorrowState(string): Callable<string>
+  cvpAccrued(string): Callable<string>
+  cvpSupplierIndex(market: string, account: string): Callable<string>
+  cvpBorrowerIndex(market: string, account: string): Callable<string>
+  cvpSpeeds(string): Callable<string>
+  claimCvp(string): Sendable<void>
+  _setCvpRate(encodedNumber): Sendable<void>
 }
 
 export interface Comptroller extends Contract {

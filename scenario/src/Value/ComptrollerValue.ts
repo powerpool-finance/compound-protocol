@@ -93,8 +93,8 @@ async function getAssetsIn(world: World, comptroller: Comptroller, user: string)
   return new ListV(assetsList.map((a) => new AddressV(a)));
 }
 
-async function getCompMarkets(world: World, comptroller: Comptroller): Promise<ListV> {
-  let mkts = await comptroller.methods.getCompMarkets().call();
+async function getCvpMarkets(world: World, comptroller: Comptroller): Promise<ListV> {
+  let mkts = await comptroller.methods.getCvpMarkets().call();
 
   return new ListV(mkts.map((a) => new AddressV(a)));
 }
@@ -421,7 +421,7 @@ export function comptrollerFetchers() {
       `,
       "GetCompMarkets",
       [new Arg("comptroller", getComptroller, {implicit: true})],
-      async(world, {comptroller}) => await getCompMarkets(world, comptroller)
+      async(world, {comptroller}) => await getCvpMarkets(world, comptroller)
      ),
 
     new Fetcher<{comptroller: Comptroller}, NumberV>(`
@@ -432,7 +432,7 @@ export function comptrollerFetchers() {
       `,
       "CompRate",
       [new Arg("comptroller", getComptroller, {implicit: true})],
-      async(world, {comptroller}) => new NumberV(await comptroller.methods.compRate().call())
+      async(world, {comptroller}) => new NumberV(await comptroller.methods.cvpRate().call())
     ),
 
     new Fetcher<{comptroller: Comptroller, signature: StringV, callArgs: StringV[]}, NumberV>(`
@@ -469,7 +469,7 @@ export function comptrollerFetchers() {
         new Arg("key", getStringV),
       ],
       async (world, {comptroller, CToken, key}) => {
-        const result = await comptroller.methods.compSupplyState(CToken._address).call();
+        const result = await comptroller.methods.cvpSupplyState(CToken._address).call();
         return new NumberV(result[key.val]);
       }
     ),
@@ -485,7 +485,7 @@ export function comptrollerFetchers() {
         new Arg("key", getStringV),
       ],
       async (world, {comptroller, CToken, key}) => {
-        const result = await comptroller.methods.compBorrowState(CToken._address).call();
+        const result = await comptroller.methods.cvpBorrowState(CToken._address).call();
         return new NumberV(result[key.val]);
       }
     ),
@@ -494,13 +494,13 @@ export function comptrollerFetchers() {
 
         * "Comptroller CompAccrued Coburn
       `,
-      "CompAccrued",
+      "CvpAccrued",
       [
         new Arg("comptroller", getComptroller, {implicit: true}),
         new Arg("account", getAddressV),
       ],
       async (world, {comptroller,account}) => {
-        const result = await comptroller.methods.compAccrued(account.val).call();
+        const result = await comptroller.methods.cvpAccrued(account.val).call();
         return new NumberV(result);
       }
     ),
@@ -516,7 +516,7 @@ export function comptrollerFetchers() {
         new Arg("account", getAddressV),
       ],
       async (world, {comptroller, CToken, account}) => {
-        return new NumberV(await comptroller.methods.compSupplierIndex(CToken._address, account.val).call());
+        return new NumberV(await comptroller.methods.cvpSupplierIndex(CToken._address, account.val).call());
       }
     ),
     new Fetcher<{comptroller: Comptroller, CToken: CToken, account: AddressV}, NumberV>(`
@@ -531,7 +531,7 @@ export function comptrollerFetchers() {
         new Arg("account", getAddressV),
       ],
       async (world, {comptroller, CToken, account}) => {
-        return new NumberV(await comptroller.methods.compBorrowerIndex(CToken._address, account.val).call());
+        return new NumberV(await comptroller.methods.cvpBorrowerIndex(CToken._address, account.val).call());
       }
     ),
     new Fetcher<{comptroller: Comptroller, CToken: CToken}, NumberV>(`
@@ -545,7 +545,7 @@ export function comptrollerFetchers() {
         new Arg("CToken", getCTokenV),
       ],
       async (world, {comptroller, CToken}) => {
-        return new NumberV(await comptroller.methods.compSpeeds(CToken._address).call());
+        return new NumberV(await comptroller.methods.cvpSpeeds(CToken._address).call());
       }
     )
   ];

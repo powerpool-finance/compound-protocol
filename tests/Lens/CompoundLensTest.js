@@ -308,10 +308,10 @@ describe('CompoundLens', () => {
       comp = await deploy('Cvp', [acct]);
     });
 
-    describe('getCompBalanceMetadata', () => {
+    describe('getCvpBalanceMetadata', () => {
       it('gets correct values', async () => {
         expect(
-          cullTuple(await call(compoundLens, 'getCompBalanceMetadata', [comp._address, acct]))
+          cullTuple(await call(compoundLens, 'getCvpBalanceMetadata', [comp._address, acct]))
         ).toEqual({
           balance: "100000000000000000000000000",
           delegate: "0x0000000000000000000000000000000000000000",
@@ -320,13 +320,13 @@ describe('CompoundLens', () => {
       });
     });
 
-    describe('getCompBalanceMetadataExt', () => {
+    describe('getCvpBalanceMetadataExt', () => {
       it('gets correct values', async () => {
         let comptroller = await makeComptroller();
-        await send(comptroller, 'setCompAccrued', [acct, 5]); // harness only
+        await send(comptroller, 'setCvpAccrued', [acct, 5]); // harness only
 
         expect(
-          cullTuple(await call(compoundLens, 'getCompBalanceMetadataExt', [comp._address, comptroller._address, acct]))
+          cullTuple(await call(compoundLens, 'getCvpBalanceMetadataExt', [comp._address, comptroller._address, acct]))
         ).toEqual({
           balance: "100000000000000000000000000",
           delegate: "0x0000000000000000000000000000000000000000",
@@ -336,10 +336,10 @@ describe('CompoundLens', () => {
       });
     });
 
-    describe('getCompVotes', () => {
+    describe('getCvpVotes', () => {
       it('gets correct values', async () => {
         expect(
-          (await call(compoundLens, 'getCompVotes', [comp._address, acct, [currentBlock, currentBlock - 1]])).map(cullTuple)
+          (await call(compoundLens, 'getCvpVotes', [comp._address, acct, [currentBlock, currentBlock - 1]])).map(cullTuple)
         ).toEqual([
           {
             blockNumber: currentBlock.toString(),
@@ -354,7 +354,7 @@ describe('CompoundLens', () => {
 
       it('reverts on future value', async () => {
         await expect(
-          call(compoundLens, 'getCompVotes', [comp._address, acct, [currentBlock + 1]])
+          call(compoundLens, 'getCvpVotes', [comp._address, acct, [currentBlock + 1]])
         ).rejects.toRevert('revert Cvp::getPriorVotes: not yet determined')
       });
     });

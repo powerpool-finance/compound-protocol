@@ -62,12 +62,12 @@ async function makeComptroller(opts = {}) {
     const closeFactor = etherMantissa(dfn(opts.closeFactor, .051));
     const maxAssets = etherUnsigned(dfn(opts.maxAssets, 10));
     const liquidationIncentive = etherMantissa(1);
-    const compRate = etherUnsigned(dfn(opts.compRate, 1e18));
-    const compMarkets = opts.compMarkets || [];
+    const cvpRate = etherUnsigned(dfn(opts.cvpRate, 1e18));
+    const cvpMarkets = opts.cvpMarkets || [];
     const otherMarkets = opts.otherMarkets || [];
 
     await send(unitroller, '_setPendingImplementation', [comptroller._address]);
-    await send(comptroller, '_become', [unitroller._address, compRate, compMarkets, otherMarkets]);
+    await send(comptroller, '_become', [unitroller._address, cvpRate, cvpMarkets, otherMarkets]);
     mergeInterface(unitroller, comptroller);
     await send(unitroller, '_setLiquidationIncentive', [liquidationIncentive]);
     await send(unitroller, '_setCloseFactor', [closeFactor]);
@@ -84,8 +84,8 @@ async function makeComptroller(opts = {}) {
     const closeFactor = etherMantissa(dfn(opts.closeFactor, .051));
     const maxAssets = etherUnsigned(dfn(opts.maxAssets, 10));
     const liquidationIncentive = etherMantissa(1);
-    const comp = opts.comp || await deploy('Cvp', [opts.compOwner || root]);
-    const compRate = etherUnsigned(dfn(opts.compRate, 1e18));
+    const cvp = opts.cvp || await deploy('Cvp', [opts.cvpOwner || root]);
+    const cvpRate = etherUnsigned(dfn(opts.cvpRate, 1e18));
 
     await send(unitroller, '_setPendingImplementation', [comptroller._address]);
     await send(comptroller, '_become', [unitroller._address]);
@@ -94,10 +94,10 @@ async function makeComptroller(opts = {}) {
     await send(unitroller, '_setCloseFactor', [closeFactor]);
     await send(unitroller, '_setMaxAssets', [maxAssets]);
     await send(unitroller, '_setPriceOracle', [priceOracle._address]);
-    await send(unitroller, 'setCompAddress', [comp._address]); // harness only
-    await send(unitroller, '_setCompRate', [compRate]);
+    await send(unitroller, 'setCvpAddress', [cvp._address]); // harness only
+    await send(unitroller, '_setCvpRate', [cvpRate]);
 
-    return Object.assign(unitroller, { priceOracle, comp });
+    return Object.assign(unitroller, { priceOracle, cvp });
   }
 }
 
@@ -179,8 +179,8 @@ async function makeCToken(opts = {}) {
     await send(comptroller, '_supportMarket', [cToken._address]);
   }
 
-  if (opts.addCompMarket) {
-    await send(comptroller, '_addCompMarket', [cToken._address]);
+  if (opts.addCvpMarket) {
+    await send(comptroller, '_addCvpMarket', [cToken._address]);
   }
 
   if (opts.underlyingPrice) {

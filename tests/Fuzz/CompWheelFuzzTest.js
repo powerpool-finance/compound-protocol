@@ -104,8 +104,8 @@ describe.skip('CompWheelFuzzTest', () => {
       compBorrowIndexSnapshots: {},
       compSupplyIndexUpdatedBlock: globals.blockNumber,
 
-      compAccruedWithCrank: {}, // naive method, accruing all accounts every block
-      compAccruedWithIndex: {}, // with indices
+      cvpAccruedWithCrank: {}, // naive method, accruing all accounts every block
+      cvpAccruedWithIndex: {}, // with indices
 
       activeBorrowBlocks: new bn(0), // # blocks with an active borrow, for which we expect to see comp distributed. just for fuzz testing.
       activeSupplyBlocks: new bn(0)
@@ -173,15 +173,15 @@ describe.skip('CompWheelFuzzTest', () => {
       compSupplySpeed,
       totalSupply,
       totalBorrows,
-      compAccruedWithCrank,
+      cvpAccruedWithCrank,
       borrowBalances
     } = state;
 
     // suppliers
     for (let [account, balance] of Object.entries(balances)) {
       if (isPositive(totalSupply)) {
-        compAccruedWithCrank[account] = get(
-          state.compAccruedWithCrank[account]
+        cvpAccruedWithCrank[account] = get(
+          state.cvpAccruedWithCrank[account]
         ).plus(
           deltaBlocks
             .times(compSupplySpeed)
@@ -196,8 +196,8 @@ describe.skip('CompWheelFuzzTest', () => {
       if (isPositive(totalBorrows)) {
         let truedUpBorrowBalance = getAccruedBorrowBalance(state, account);
 
-        compAccruedWithCrank[account] = get(
-          state.compAccruedWithCrank[account]
+        cvpAccruedWithCrank[account] = get(
+          state.cvpAccruedWithCrank[account]
         ).plus(
           deltaBlocks
             .times(compBorrowSpeed)
@@ -209,7 +209,7 @@ describe.skip('CompWheelFuzzTest', () => {
 
     return {
       ...state,
-      compAccruedWithCrank: compAccruedWithCrank,
+      cvpAccruedWithCrank: cvpAccruedWithCrank,
     };
   };
 
@@ -219,7 +219,7 @@ describe.skip('CompWheelFuzzTest', () => {
       compBorrowSpeed,
       compBorrowIndex,
       compBorrowIndexSnapshots,
-      compAccruedWithIndex,
+      cvpAccruedWithIndex,
       totalBorrows,
       borrowBalances,
       compBorrowIndexUpdatedBlock,
@@ -246,7 +246,7 @@ describe.skip('CompWheelFuzzTest', () => {
       let borrowBalanceNew = borrowBalances[account]
         .times(borrowIndex)
         .div(state.borrowIndexSnapshots[account]);
-      compAccruedWithIndex[account] = get(compAccruedWithIndex[account]).plus(
+      cvpAccruedWithIndex[account] = get(cvpAccruedWithIndex[account]).plus(
         borrowBalanceNew
           .div(borrowIndex)
           .times(compBorrowIndex.minus(indexSnapshot))
@@ -271,7 +271,7 @@ describe.skip('CompWheelFuzzTest', () => {
       compSupplySpeed,
       compSupplyIndex,
       compSupplyIndexSnapshots,
-      compAccruedWithIndex,
+      cvpAccruedWithIndex,
       totalSupply,
       compSupplyIndexUpdatedBlock
     } = state;
@@ -287,7 +287,7 @@ describe.skip('CompWheelFuzzTest', () => {
     let indexSnapshot = compSupplyIndexSnapshots[account];
     if (indexSnapshot !== undefined) {
       // if had prev snapshot,  accrue some comp
-      compAccruedWithIndex[account] = get(compAccruedWithIndex[account]).plus(
+      cvpAccruedWithIndex[account] = get(cvpAccruedWithIndex[account]).plus(
         balances[account].times(compSupplyIndex.minus(indexSnapshot))
       );
     }
@@ -300,7 +300,7 @@ describe.skip('CompWheelFuzzTest', () => {
         ...state.compSupplyIndexSnapshots,
         [account]: compSupplyIndex
       },
-      compAccruedWithIndex: compAccruedWithIndex
+      cvpAccruedWithIndex: cvpAccruedWithIndex
     };
   };
 
@@ -585,7 +585,7 @@ describe.skip('CompWheelFuzzTest', () => {
       .times(state.compSupplySpeed)
       .plus(state.activeBorrowBlocks.times(state.compBorrowSpeed));
 
-    let actual = Object.values(state.compAccruedWithCrank).reduce(
+    let actual = Object.values(state.cvpAccruedWithCrank).reduce(
       (acc, val) => acc.plus(val),
       new bn(0)
     );
@@ -599,8 +599,8 @@ describe.skip('CompWheelFuzzTest', () => {
 
   // assert comp distributed by index is the same as amount distributed by crank
   let indexCorrectnessInvariant = (globals, state, events, invariantFn) => {
-    let expected = state.compAccruedWithCrank;
-    let actual = state.compAccruedWithIndex;
+    let expected = state.cvpAccruedWithCrank;
+    let actual = state.cvpAccruedWithIndex;
     invariantFn(
       (expected, actual) => {
         return Object.keys(expected).reduce((succeeded, account) => {
