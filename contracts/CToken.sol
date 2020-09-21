@@ -499,7 +499,8 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
 
         if(address(tokenRestrictions) != address(0)) {
             Exp memory exchangeRate = Exp({mantissa: exchangeRateStored()});
-            (, uint underlyingBalance) = mulScalarTruncate(exchangeRate, accountTokens[minter]);
+            (MathError calcUnderlyingMathError, uint underlyingBalance) = mulScalarTruncate(exchangeRate, accountTokens[minter]);
+            require(calcUnderlyingMathError == MathError.NO_ERROR, "MINT_UNDERLYING_AMOUNT_MATH_ERROR");
             (uint maxMint,) = tokenRestrictions.getUserRestrictionsAndValidateWhitelist(minter, address(this));
 
             (MathError calcAmountMathError, uint calcAmount) = addUInt(mintAmount, underlyingBalance);
@@ -508,10 +509,11 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
 
             (uint maxTotalSupply) = tokenRestrictions.totalRestrictions(address(this));
             if(maxTotalSupply != 0) {
-                (, uint totalSupplyUnderlying) = mulScalarTruncate(exchangeRate, totalSupply);
+                (MathError calcTotalSupplyUnderlyingMathError, uint totalSupplyUnderlying) = mulScalarTruncate(exchangeRate, totalSupply);
+                require(calcTotalSupplyUnderlyingMathError == MathError.NO_ERROR, "TOTAL_SUPPLY_UNDERLYING_MATH_ERROR");
 
                 (MathError calcSupplyMathError, uint calcSupply) = addUInt(mintAmount, totalSupplyUnderlying);
-                require(calcAmountMathError == MathError.NO_ERROR, "TOTAL_SUPPLY_MATH_ERROR");
+                require(calcAmountMathError == MathError.NO_ERROR, "TOTAL_SUPPLY_PLUS_AMOUNT_MATH_ERROR");
                 require(calcSupply <= maxTotalSupply, "TOTAL_SUPPLY_EXCEED_RESTRICTIONS");
             }
         }
