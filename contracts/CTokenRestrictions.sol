@@ -126,6 +126,10 @@ contract CTokenRestrictions is CTokenRestrictionsInterface {
     return usersWhiteList.length();
   }
 
+  function getTokenMaxTotalSupply(address _token) external view returns (uint256) {
+    return totalRestrictions[_token].maxTotalSupply;
+  }
+
   /*** Internal Functions ***/
 
   function _setTotalRestrictions(address[] memory _tokenList, uint256[] memory _maxTotalSupplyList) internal {

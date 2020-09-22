@@ -507,7 +507,7 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
             require(calcAmountMathError == MathError.NO_ERROR, "MINT_AMOUNT_MATH_ERROR");
             require(calcAmount <= maxMint, "MINT_AMOUNT_EXCEED_RESTRICTIONS");
 
-            (uint maxTotalSupply) = tokenRestrictions.totalRestrictions(address(this));
+            uint maxTotalSupply = tokenRestrictions.getTokenMaxTotalSupply(address(this));
             if(maxTotalSupply != 0) {
                 (MathError calcTotalSupplyUnderlyingMathError, uint totalSupplyUnderlying) = mulScalarTruncate(exchangeRate, totalSupply);
                 require(calcTotalSupplyUnderlyingMathError == MathError.NO_ERROR, "TOTAL_SUPPLY_UNDERLYING_MATH_ERROR");

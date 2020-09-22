@@ -6,4 +6,5 @@ interface CTokenRestrictionsInterface {
     function validateWhitelistedUser(address _user) external view;
 
     function totalRestrictions(address _token) external view returns(uint256 maxTotalSupply);
+    function getTokenMaxTotalSupply(address _token) external view returns(uint256);
 }
