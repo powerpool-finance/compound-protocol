@@ -137,3 +137,11 @@ spec/certora/Timelock/%.cvl:
 
 certora-clean:
 	rm -rf .certora_build.json .certora_config certora_verify.json emv-*
+
+compile:
+	npx saddle compile
+
+test:
+	 yarn run saddle-test-ppgt
+
+ctest: compile test
