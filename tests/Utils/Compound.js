@@ -155,8 +155,8 @@ async function makeCToken(opts = {}) {
       break;
 
     case 'ppgt':
-      underlying = opts.underlying || await makeToken(opts.underlyingOpts);
-      const governor = opts.governorContract || await makeGovernor(opts.governorOpts);
+      underlying = opts.underlying || await makeCvp(opts.cvpOpts);
+      const governor = opts.governorContract || await makeGovernor(Object.assign(opts.governorOpts, {cvp: underlying}));
       const voteCaster = opts.voteCaster || await makeGovernor(opts.voteCasterOpts);
 
       cDelegatee = await deploy('PPGtDelegate');
@@ -172,8 +172,8 @@ async function makeCToken(opts = {}) {
             admin,
             cDelegatee._address,
             encodeParameters(
-              ['address', 'address', 'address'],
-              [governor._address, voteCaster._address, opts.votingAddressManager]
+              ['address', 'address'],
+              [governor._address, voteCaster._address]
             )
           ]
       );
@@ -286,7 +286,9 @@ async function makeGovernor(opts = {}) {
     guardian = address(2),
   } = opts || {};
   const cvp = opts.cvp || await makeCvp(opts.cvpOpts);
-  return await deploy('GovernorAlpha', [timelock, cvp._address, guardian]);
+  const governor =  await deploy('GovernorAlpha', [timelock, cvp._address, guardian]);
+  Object.assign(governor, {cvp});
+  return governor;
 }
 
 async function makeCvp(opts = {}) {

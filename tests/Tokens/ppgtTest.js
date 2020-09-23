@@ -1,63 +1,106 @@
 const {makeCToken} = require('../Utils/Compound');
+const {
+  encodeParameters,
+  advanceBlocks,
+} = require('../Utils/Ethereum');
 
-describe.only('PPGtDelegate Token', function () {
+const BigNum = require('bignumber.js');
+
+BigNum.config({EXPONENTIAL_AT: 30})
+
+function ether(value) {
+  const v = new BigNum(value);
+  return v.multipliedBy('1e18').toString();
+}
+
+describe('PPGtDelegate Token', function () {
+  const data = encodeParameters(['uint256'], [42]);
+
   let root, accounts;
-  let alice, bob, charlie, treasury;
+  let alice, bob, charlie, treasury, voteCaster;
+  let ppUni, counter, proposeArgs;
+
   beforeEach(async () => {
     [root, ...accounts] = saddle.accounts;
-    [alice, bob, charlie, treasury] = accounts;
+    [alice, bob, charlie, treasury, voteCaster] = accounts;
+
+    ppUni = await makeCToken({
+      kind: 'ppgt',
+      admin: bob,
+      symbol: "ppUNI",
+      cvpOpts: {cvpBeneficiary: treasury},
+      governorOpts: {cvpBeneficiary: alice},
+      voteCaster: {_address: voteCaster}
+    });
+    counter = await deploy('Counter');
+    proposeArgs = [[counter._address], [0], ['increment(uint256)'], [data], "let's do it"];
   });
 
   describe('initialization', () => {
-    it.only('should correctly assign the initial variables', async () => {
-      const cToken = await makeCToken({
-        kind: 'ppgt',
-        name: 'BZZ',
-        votingAddressManager: bob,
-        governorOpts: {cvpBeneficiary: alice, cvpOpts: {cvpBeneficiary: treasury}},
-        voteCasterOpts: {cvpBeneficiary: alice, cvpOpts: {cvpBeneficiary: treasury}}
-      });
-      const {governor, voteCaster} = cToken;
-      expect(await call(cToken, 'governorAlpha', [])).toEqual(governor._address);
-      expect(await call(cToken, 'voteCaster', [])).toEqual(voteCaster._address);
-      expect(await call(cToken, 'votingAddressManager', [])).toEqual(bob);
+    it('should correctly assign the initial variables', async () => {
+      const {governor} = ppUni;
+      expect(await call(ppUni, 'governorAlpha', [])).toEqual(governor._address);
+      expect(await call(ppUni, 'voteCaster', [])).toEqual(voteCaster);
+      expect(await call(ppUni, 'admin', [])).toEqual(bob);
     });
   });
 
-  describe('transfer', () => {
-    it("cannot transfer from a zero balance", async () => {
-      const cToken = await makeCToken({supportMarket: true});
-      expect(await call(cToken, 'balanceOf', [root])).toEqualNumber(0);
-      expect(await send(cToken, 'transfer', [accounts[0], 100])).toHaveTokenFailure('MATH_ERROR', 'TRANSFER_NOT_ENOUGH');
+  describe('admin interface', () => {
+    it('should allow admin setting governorAlpha address', async () => {
+      await send(ppUni, 'setGovernorAlpha', [charlie], {from: bob});
+      expect(await call(ppUni, 'governorAlpha', [])).toEqual(charlie);
     });
 
-    it("transfers 50 tokens", async () => {
-      const cToken = await makeCToken({supportMarket: true});
-      await send(cToken, 'harnessSetBalance', [root, 100]);
-      expect(await call(cToken, 'balanceOf', [root])).toEqualNumber(100);
-      await send(cToken, 'transfer', [accounts[0], 50]);
-      expect(await call(cToken, 'balanceOf', [root])).toEqualNumber(50);
-      expect(await call(cToken, 'balanceOf', [accounts[0]])).toEqualNumber(50);
+    it('should allow admin setting voteCaster address', async () => {
+      await send(ppUni, 'setVoteCaster', [charlie], {from: bob});
+      expect(await call(ppUni, 'voteCaster', [])).toEqual(charlie);
     });
 
-    it("doesn't transfer when src == dst", async () => {
-      const cToken = await makeCToken({supportMarket: true});
-      await send(cToken, 'harnessSetBalance', [root, 100]);
-      expect(await call(cToken, 'balanceOf', [root])).toEqualNumber(100);
-      expect(await send(cToken, 'transfer', [root, 50])).toHaveTokenFailure('BAD_INPUT', 'TRANSFER_NOT_ALLOWED');
-    });
+    it('should deny non-admin setting governorAlpha address', async () => {
+      await expect(send(ppUni, 'setGovernorAlpha', [charlie], {from: alice}))
+        .rejects.toRevert("revert PPGT:setGovernorAlpha: Only admin allowed");
+    })
 
-    it("rejects transfer when not allowed and reverts if not verified", async () => {
-      const cToken = await makeCToken({comptrollerOpts: {kind: 'bool'}});
-      await send(cToken, 'harnessSetBalance', [root, 100]);
-      expect(await call(cToken, 'balanceOf', [root])).toEqualNumber(100);
-
-      await send(cToken.comptroller, 'setTransferAllowed', [false])
-      expect(await send(cToken, 'transfer', [root, 50])).toHaveTrollReject('TRANSFER_COMPTROLLER_REJECTION');
-
-      await send(cToken.comptroller, 'setTransferAllowed', [true])
-      await send(cToken.comptroller, 'setTransferVerify', [false])
-      await expect(send(cToken, 'transfer', [accounts[0], 50])).rejects.toRevert("revert transferVerify rejected transfer");
-    });
+    it('should deny non-admin setting voteCaster address', async () => {
+      await expect(send(ppUni, 'setVoteCaster', [charlie], {from: alice}))
+        .rejects.toRevert("revert PPGT:setVoteCaster: Only admin allowed");
+    })
   });
+
+  it('should allow a vote caster creating a proposal in the governor contract and voting for it', async () => {
+    const {governor: uniGovernor} = ppUni;
+    const {underlying: uni} = ppUni;
+
+    // prepare
+    await send(uni, 'transfer', [ppUni._address, ether(400 * 1000)], {from: treasury});
+
+    await advanceBlocks(2);
+
+    await send(ppUni, 'selfDelegate', {from: alice});
+
+    // propose
+    await send(ppUni, 'propose', proposeArgs, {from: voteCaster});
+
+    let proposal = await call(uniGovernor, 'proposals', [1])
+    expect(proposal.proposer).toEqual(ppUni._address);
+
+    const actions = await call(uniGovernor, 'getActions', [1])
+
+    expect(actions.targets).toEqual([counter._address]);
+    expect(actions.signatures).toEqual(['increment(uint256)']);
+    expect(actions.calldatas).toEqual([data]);
+
+    // vote for
+    await advanceBlocks(2);
+    await send(ppUni, 'castVote', [1, true], {from: voteCaster});
+
+    proposal = await call(uniGovernor, 'proposals', [1])
+    expect(proposal.proposer).toEqual(ppUni._address);
+    expect(proposal.forVotes).toEqual(ether(400 * 1000));
+  });
+
+  it('should deny non-voteCaster creating a proposal', async () => {
+    await expect(send(ppUni, "propose", proposeArgs, {from: alice}))
+      .rejects.toRevert("revert PPGT:castVote: Only voteCaster allowed");
+  })
 });
