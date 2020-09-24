@@ -53,6 +53,9 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
     /// @notice Emitted when CVP rate is changed
     event NewCvpRate(uint oldCvpRate, uint newCvpRate);
 
+    /// @notice Emitted when CVP rate is changed
+    event NewCvpAddress(address oldCvpAddress, address newCvpAddress);
+
     /// @notice Emitted when a new CVP speed is calculated for a market
     event CvpSpeedUpdated(CToken indexed cToken, uint newSpeed);
 
@@ -1319,6 +1322,21 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
     }
 
     /**
+     * @notice Set the CVP address
+     * @param cvpAddress_ CVP address
+     */
+    function _setCvpAddress(address cvpAddress_) public {
+        require(adminOrInitializing(), "only admin can change cvp address");
+        require(cvpAddress == address(0), "cvpAddress already set");
+
+        address oldAddress = cvpAddress;
+        cvpAddress = cvpAddress_;
+        emit NewCvpAddress(oldAddress, cvpAddress_);
+
+        refreshCvpSpeeds();
+    }
+
+    /**
      * @notice Add markets to cvpMarkets, allowing them to earn CVP in the flywheel
      * @param cTokens The addresses of the markets to add
      */
@@ -1389,6 +1407,6 @@ contract ComptrollerG3 is ComptrollerV3Storage, ComptrollerInterface, Comptrolle
      * @return The address of CVP
      */
     function getCvpAddress() public view returns (address) {
-        return 0xc00e94Cb662C3520282E6f5717214004A7f26888;
+        return cvpAddress;
     }
 }

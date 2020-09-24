@@ -1314,6 +1314,7 @@ contract Comptroller is ComptrollerV3Storage, ComptrollerInterface, ComptrollerE
      */
     function _setCvpAddress(address cvpAddress_) public {
         require(adminOrInitializing(), "only admin can change cvp address");
+        require(cvpAddress == address(0), "cvpAddress already set");
 
         address oldAddress = cvpAddress;
         cvpAddress = cvpAddress_;
