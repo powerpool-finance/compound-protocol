@@ -10,7 +10,9 @@ Currently, we plan to add ETH, wBTC, and DAI as collaterals for borrowing govern
 
 Talking about the economic nature of governance tokens, they are unique assets in the context of lending/borrowing mechanics. The utility of governance tokens is not constant in time (comparing, for example, with payment tokens such as stablecoins). Talking strictly, it appears only during voting. Our vision is to introduce a novel type of lending logic, which is not available by default in Compound or any other lending protocols but can be very suitable for governance tokens. 
 
-🚨 **Security review status: an audit is in progress**
+✅ **Security review status: Audited**
+
+More details in 👉 [Report](https://github.com/powerpool-finance/powerpool-docs/blob/master/audits/powerpool-lending-security.pdf).
 
 Contracts
 =========
