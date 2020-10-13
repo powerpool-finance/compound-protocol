@@ -1,7 +1,7 @@
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
-import "../../contracts/Governance/GovernorAlpha.sol";
+import "./GovernorAlpha.sol";
 
 contract GovernorAlphaHarness is GovernorAlpha {
     constructor(address timelock_, address comp_, address guardian_) GovernorAlpha(timelock_, comp_, guardian_) public {}

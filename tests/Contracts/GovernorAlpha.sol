@@ -16,8 +16,8 @@ https://powerpool.finance/
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
-import "./CvpInterface.sol";
-import "./GovernorAlphaInterface.sol";
+import "../../contracts/Governance/CvpInterface.sol";
+import "../../contracts/Governance/GovernorAlphaInterface.sol";
 
 contract GovernorAlpha is GovernorAlphaInterface {
     /// @notice The name of this contract

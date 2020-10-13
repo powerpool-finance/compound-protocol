@@ -1,7 +1,7 @@
 pragma solidity ^0.5.16;
 pragma experimental ABIEncoderV2;
 
-import "../../contracts/Governance/Cvp.sol";
+import "./Cvp.sol";
 
 contract CompScenario is Cvp {
     constructor(address account) Cvp(account) public {}
