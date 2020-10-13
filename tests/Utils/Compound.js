@@ -6,7 +6,8 @@ const {
   etherBalance,
   etherMantissa,
   etherUnsigned,
-  mergeInterface
+  mergeInterface,
+  address
 } = require('./Ethereum');
 
 async function makeComptroller(opts = {}) {
@@ -153,6 +154,32 @@ async function makeCToken(opts = {}) {
       cToken = await saddle.getContractAt('CDaiDelegateHarness', cDelegator._address); // XXXS at
       break;
 
+    case 'ppgt':
+      underlying = opts.underlying || await makeCvp(opts.cvpOpts);
+      const governor = opts.governorContract || await makeGovernor(Object.assign(opts.governorOpts, {cvp: underlying}));
+      const voteCaster = opts.voteCaster || await makeGovernor(opts.voteCasterOpts);
+
+      cDelegatee = await deploy('PPGtDelegate');
+      cDelegator = await deploy('CErc20Delegator',
+          [
+            underlying._address,
+            comptroller._address,
+            interestRateModel._address,
+            exchangeRate,
+            name,
+            symbol,
+            decimals,
+            admin,
+            cDelegatee._address,
+            encodeParameters(
+              ['address', 'address'],
+              [governor._address, voteCaster._address]
+            )
+          ]
+      );
+      cToken = await saddle.getContractAt('PPGtDelegate', cDelegator._address); // XXXS at
+      Object.assign(cToken, { governor, voteCaster })
+      break;
     case 'cerc20':
     default:
       underlying = opts.underlying || await makeToken(opts.underlyingOpts);
@@ -251,6 +278,22 @@ async function makeToken(opts = {}) {
     const name = opts.name || `Erc20 ${symbol}`;
     return await deploy('ERC20Harness', [quantity, name, decimals, symbol]);
   }
+}
+
+async function makeGovernor(opts = {}) {
+  const {
+    timelock = address(1),
+    guardian = address(2),
+  } = opts || {};
+  const cvp = opts.cvp || await makeCvp(opts.cvpOpts);
+  const governor =  await deploy('GovernorAlpha', [timelock, cvp._address, guardian]);
+  Object.assign(governor, {cvp});
+  return governor;
+}
+
+async function makeCvp(opts = {}) {
+  const {cvpBeneficiary} = opts || address(0);
+  return await deploy('Cvp', [cvpBeneficiary]);
 }
 
 async function balanceOf(token, account) {
@@ -411,6 +454,7 @@ module.exports = {
   makeInterestRateModel,
   makePriceOracle,
   makeToken,
+  makeGovernor,
 
   balanceOf,
   totalSupply,
